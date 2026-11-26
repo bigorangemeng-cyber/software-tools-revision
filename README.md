@@ -6,9 +6,11 @@
 
 [![Live site](https://img.shields.io/badge/在线预览-Live_site-0e8a76?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/)
 [![Mind map](https://img.shields.io/badge/思维导图-Mind_map-6047d6?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/mindmap.html)
-[![Exam pack](https://img.shields.io/badge/开卷打印包-Print_pack-c42a55?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/print.html)
+[![Print pack](https://img.shields.io/badge/复习资料打印包-Print_pack-c42a55?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/print.html)
 
 `152` concepts · `143` commands · `439` cross-links · `11` lectures · zero dependencies
+
+作者 Author: **Xuanyu Meng** · [bigorangemeng-cyber](https://github.com/bigorangemeng-cyber)
 
 </div>
 
@@ -30,7 +32,7 @@ A structured, cross-linked set of revision notes for the first term of *Software
 | 🧵 | **8 条知识主线**：如权限（W1 rwx → W2 setuid → W10 Datalog 访问控制）、安全、Git 时间旅行 | 8 threads that follow one idea across weeks |
 | 🌐 | **中文 / 对照 / EN 一键切换**，英文术语始终保留（考试是英文） | Chinese / side-by-side / English switch; English terms always visible |
 | 📖 | **术语表 + 命令速查**，中英文都可筛选 | Filterable glossary and command cheatsheet |
-| 🖨️ | **开卷打印包**：考点速记、命令速查、全部笔记（带编号）、A–Z 索引，A4 排版，附现成 PDF | Open-book exam pack for A4 printing, with a ready-made PDF |
+| 🖨️ | **复习资料打印包**：考点速记、命令速查、全部笔记（带编号）、A–Z 索引，A4 排版，附现成 PDF | Revision print pack for A4 printing, with a ready-made PDF |
 | 📱 | 手机、深色模式、打印均已适配 | Works on mobile, dark mode and print |
 
 ## 截图 · Screenshots
@@ -38,7 +40,7 @@ A structured, cross-linked set of revision notes for the first term of *Software
 | 思维导图 · Mind map | 每讲页面 · Lecture page |
 |---|---|
 | ![Mind map](docs/screenshots/mindmap.jpg) | ![Lecture page](docs/screenshots/week.jpg) |
-| **知识点卡片 · Concept note** | **开卷打印包 · Exam print pack** |
+| **知识点卡片 · Concept note** | **复习资料打印包 · Revision print pack** |
 | ![Concept note](docs/screenshots/note.jpg) | ![Print pack](docs/screenshots/print.jpg) |
 
 ## 内容 · Contents
@@ -62,7 +64,7 @@ A structured, cross-linked set of revision notes for the first term of *Software
 1. 先看 **[思维导图](https://bigorangemeng-cyber.github.io/software-tools-revision/mindmap.html)** 建立全局。 Start with the mind map.
 2. 按**学习路线**逐讲复习：核心问题 → 逻辑链 → 知识点卡片 → 考点速记。 Work through each lecture in order.
 3. 用首页的**知识主线**把不同讲的概念串起来。 Use the threads to connect ideas across weeks.
-4. 考前打印 **[开卷打印包](https://bigorangemeng-cyber.github.io/software-tools-revision/print.html)**（或直接下载 [PDF](https://bigorangemeng-cyber.github.io/software-tools-revision/exam-pack-bilingual.pdf)）。 Print the exam pack before the open-book exam.
+4. 需要纸质版时打印 **[复习资料打印包](https://bigorangemeng-cyber.github.io/software-tools-revision/print.html)**（或直接下载 [PDF](https://bigorangemeng-cyber.github.io/software-tools-revision/exam-pack-bilingual.pdf)）。 Print the revision pack if you prefer paper.
 
 ## 本地运行与修改 · Build locally
 
@@ -95,8 +97,19 @@ c("grep", "grep", "grep 搜索", exam=True,
   see=["sed", "filters"])
 ```
 
-## 说明 · Disclaimer
+## 作者与声明 · Author & disclaimer
 
-个人复习笔记，根据公开的课程仓库 [cs-uob/software-tools](https://github.com/cs-uob/software-tools) 整理，**非官方课程资料**，可能存在错误或遗漏，请以课程原始材料为准。欢迎提 Issue 指正。
+**作者 Author**：Xuanyu Meng（[bigorangemeng-cyber](https://github.com/bigorangemeng-cyber)），布里斯托大学学生。本项目为独立的个人学习整理。
+A personal, independent study project by Xuanyu Meng, a student at the University of Bristol.
 
-Personal study notes built from the public course repository. Not official course material — always check the original lectures and labs. Corrections via Issues are welcome.
+- **无隶属关系 · No affiliation**：本站与布里斯托大学、计算机学院及 Software Tools 教学团队无隶属关系，未经其审核或认可，不是官方课程资料。
+  Not affiliated with, reviewed or endorsed by the University of Bristol or the Software Tools teaching team; not official course material.
+- **课程材料版权 · Copyright of course materials**：课程原始材料（讲座、幻灯片、实验文档、示例代码、样例数据库）的版权归布里斯托大学及各自作者所有，原始材料见 [cs-uob/software-tools](https://github.com/cs-uob/software-tools)。本仓库内容为作者用自己的话所做的概括、翻译与重新组织；仅在说明需要时少量引用命令、代码片段和示例，并注明出处；未转载任何完整的讲义、幻灯片、实验文档或往年试题。
+  Copyright in the original course materials belongs to the University of Bristol and their authors. This repository contains the author's own summaries, translations and re-organisation, quoting only short commands, snippets and examples where needed, with attribution. No complete lecture, slide deck, lab sheet or past exam paper is reproduced.
+- **使用范围 · Use**：仅供非商业的个人学习与复习交流，请勿出售或商业转载；凡涉及考核，以课程官方材料和考试说明为准。
+  Non-commercial personal study only; for anything assessed, follow the official materials and exam instructions.
+- **准确性 · Accuracy**：可能存在错误或遗漏，不构成官方答案，欢迎通过 Issues 指正。 May contain mistakes; corrections welcome via Issues.
+- **制作方式 · How it was made**：在 AI 工具辅助下整理与排版。 Organised and formatted with the help of AI tools.
+- **删除请求 · Removal requests**：如权利人认为任何内容不宜公开，请[提交 Issue](https://github.com/bigorangemeng-cyber/software-tools-revision/issues)，作者会尽快修改或删除。 Rights holders can open an issue and the content will be corrected or removed promptly.
+
+作者自己撰写的文字、结构、代码与设计 © 2026 Xuanyu Meng。 The author's own text, structure, code and design © 2026 Xuanyu Meng.

@@ -386,7 +386,7 @@ tr[hidden], .cmdblock[hidden] { display: none; }
   a { color: inherit; }
 }
 
-/* ---------- open-book print pack (print.html) ---------- */
+/* ---------- revision print pack (print.html) ---------- */
 .topnav a.nav-print { background: var(--ink); color: var(--paper); }
 .topnav a.nav-print:hover { background: var(--ink-2); color: var(--paper); }
 .pp { max-width: 1060px; margin: 0 auto; background: var(--card); border: 1px solid var(--rule); box-shadow: var(--shadow-2); padding: 30px 44px 40px; border-radius: 6px; font-size: 13.5px; line-height: 1.52; }
@@ -477,7 +477,7 @@ tr[hidden], .cmdblock[hidden] { display: none; }
 @media print {
   @page { size: A4; margin: 11mm 9mm 13mm;
     @bottom-right { content: counter(page); font: 8pt sans-serif; color: #777; }
-    @bottom-left { content: "Software Tools · TB1 open-book pack"; font: 8pt sans-serif; color: #999; } }
+    @bottom-left { content: "Software Tools · revision print pack · Xuanyu Meng"; font: 8pt sans-serif; color: #999; } }
   html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .main.solo { padding: 0; max-width: none; }
   .pp { box-shadow: none; border: 0; padding: 0; max-width: none; font-size: 8.3pt; line-height: 1.36; border-radius: 0; }
@@ -503,3 +503,20 @@ tr[hidden], .cmdblock[hidden] { display: none; }
   .pp a { color: inherit; }
   .pp .xref { border-bottom: 0; }
 }
+
+/* ---------- author & disclaimer ---------- */
+.about { padding: 20px 24px; margin: 0 0 34px; }
+.about-body ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
+.about-body li b { color: var(--ink); }
+.mode-both .about-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+.mode-both .about-body > .l-zh { border-left: 1px solid var(--rule-2); padding-left: 24px; }
+.foot a { color: var(--ink-2); text-decoration: underline; }
+.mode-both .foot a span.l-en + span.l-zh::before { content: none; }
+.pp-author { font-size: 12.5px; color: var(--ink-2); margin: 6px 0 2px; }
+.mode-both .pp-author .l-en { display: none; }
+.mode-both .pp-author span.l-en + span.l-zh::before { content: none; }
+.pp-disc { font-size: 11.5px; color: var(--ink-3); border: 1px solid var(--rule); border-radius: 8px; padding: 6px 10px; margin: 10px 0; line-height: 1.5; }
+.mode-both .pp-disc span.l-en + span.l-zh::before { content: none; }
+.mode-both .pp-disc .l-en { display: block; margin-bottom: 3px; }
+@media screen and (max-width: 860px) { .mode-both .about-body { grid-template-columns: 1fr; } .mode-both .about-body > .l-zh { border-left: 0; padding-left: 0; } }
+@media print { .pp-disc { font-size: 7pt; } }

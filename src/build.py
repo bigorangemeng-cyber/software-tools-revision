@@ -164,7 +164,7 @@ def page(title, body, active=None, wide=False, side=True):
     <a href="glossary.html">{bi("Glossary", "术语表", "ui")}</a>
     <a href="commands.html">{bi("Commands", "命令速查", "ui")}</a>
     <a href="all.html">{bi("All-in-one", "全文", "ui")}</a>
-    <a class="nav-print" href="print.html">{bi("Exam print", "开卷打印包", "ui")}</a>
+    <a class="nav-print" href="print.html">{bi("Print pack", "复习资料打印包", "ui")}</a>
   </nav>
   <div class="langs" role="group" aria-label="language">
     <button data-mode="zh" type="button">中文</button><button data-mode="both" type="button">对照</button><button data-mode="en" type="button">EN</button>
@@ -173,10 +173,11 @@ def page(title, body, active=None, wide=False, side=True):
     layout = (f'<div class="layout">{sidebar(active)}<main class="main{" wide" if wide else ""}">{body}</main></div>'
               if side else f'<main class="main solo">{body}</main>')
     foot = ('<footer class="foot">' + bi(
-        "Personal revision notes for COMS10012 / COMSM0085 Software Tools (University of Bristol), weeks 0–10. "
-        "Built from the public course repository; not official course material.",
-        "个人复习笔记：布里斯托大学 COMS10012 / COMSM0085 Software Tools 第 0–10 讲。根据公开课程仓库整理，非官方资料。")
-        + '</footer>')
+        "© 2026 Xuanyu Meng · Personal revision notes for COMS10012 / COMSM0085 Software Tools, weeks 0–10. "
+        "Not affiliated with or endorsed by the University of Bristol; copyright in the original course materials belongs to their authors. ",
+        "© 2026 Xuanyu Meng · Software Tools（COMS10012 / COMSM0085）第 0–10 讲个人复习笔记。"
+        "与布里斯托大学及课程团队无隶属关系，亦未经其认可；课程原始材料版权归原作者所有。")
+        + ' <a href="index.html#about">' + bi("Disclaimer", "完整声明") + '</a></footer>')
     return f'''<!DOCTYPE html>
 <html lang="zh-CN" class="mode-both">
 <head>
@@ -345,6 +346,35 @@ def prevnext(n):
 
 
 # ---------------------------------------------------------------- special pages
+ABOUT_EN = [
+    ("Author", "Xuanyu Meng (GitHub: <a href=\"https://github.com/bigorangemeng-cyber\">bigorangemeng-cyber</a>), a student at the University of Bristol. This is an independent, personal study project."),
+    ("No affiliation", "This site is not affiliated with, reviewed or endorsed by the University of Bristol, the School of Computer Science or the Software Tools teaching team. It is not official course material."),
+    ("Copyright of course materials", "Copyright in the original lectures, slides, lab sheets, example code and sample databases belongs to the University of Bristol and their respective authors; the originals are at <a href=\"https://github.com/cs-uob/software-tools\">cs-uob/software-tools</a>. The notes here are the author's own summaries, translations and re-organisation. Only short commands, code snippets and examples are quoted where needed to explain a point, with the source given; no complete lecture, slide deck, lab sheet or past exam paper is reproduced."),
+    ("Use", "For non-commercial personal study and revision only. Please do not sell or republish it commercially. For anything assessed, always follow the official course materials and exam instructions."),
+    ("Accuracy", "Notes may contain mistakes or omissions and are not official answers. Corrections are welcome via GitHub Issues."),
+    ("How it was made", "Organised and formatted with the help of AI tools."),
+    ("Removal requests", "If you hold rights in any material here and would prefer it not to be public, please open an issue on the <a href=\"https://github.com/bigorangemeng-cyber/software-tools-revision/issues\">GitHub repository</a>; it will be corrected or removed promptly."),
+    ("This site", "The author's own text, structure, code and design © 2026 Xuanyu Meng."),
+]
+ABOUT_ZH = [
+    ("作者", "Xuanyu Meng（GitHub：<a href=\"https://github.com/bigorangemeng-cyber\">bigorangemeng-cyber</a>），布里斯托大学学生。本站为独立的个人学习项目。"),
+    ("无隶属关系", "本站与布里斯托大学、计算机学院及 Software Tools 教学团队无隶属关系，未经其审核或认可，不是官方课程资料。"),
+    ("课程材料版权", "课程原始材料（讲座、幻灯片、实验文档、示例代码、样例数据库）的版权归布里斯托大学及各自作者所有，原始材料见 <a href=\"https://github.com/cs-uob/software-tools\">cs-uob/software-tools</a>。本站内容为作者用自己的话所做的概括、翻译与重新组织；仅在说明需要时少量引用命令、代码片段和示例，并注明出处；未转载任何完整的讲义、幻灯片、实验文档或往年试题。"),
+    ("使用范围", "仅供非商业的个人学习与复习交流，请勿出售或用于商业转载。凡涉及考核，请以课程官方材料和考试说明为准。"),
+    ("准确性", "笔记可能存在错误或遗漏，不构成官方答案。欢迎通过 GitHub Issues 指正。"),
+    ("制作方式", "在 AI 工具辅助下整理与排版。"),
+    ("删除请求", "如权利人认为本站任何内容不宜公开，请在 <a href=\"https://github.com/bigorangemeng-cyber/software-tools-revision/issues\">GitHub 仓库</a>提交 Issue，作者会尽快修改或删除。"),
+    ("本站内容", "作者自己撰写的文字、结构、代码与设计 © 2026 Xuanyu Meng。"),
+]
+
+
+def about_html(compact=False):
+    def lst(items):
+        return "".join(f"<li><b>{k}</b>　{v}</li>" for k, v in items)
+    return (f'<div class="about-body"><ul class="l-en" lang="en">{lst(ABOUT_EN)}</ul>'
+            f'<ul class="l-zh" lang="zh-CN">{lst(ABOUT_ZH)}</ul></div>')
+
+
 def index_page():
     n_links = sum(len(v) for v in REFS.values())
     stats = (f'<div class="stats"><div><b>{len(M.WEEKS)}</b>{bi("lectures", "讲")}</div>'
@@ -382,7 +412,7 @@ def index_page():
 <h1>{bi("Software Tools", "Software Tools")}<span class="h1-sub">{bi("structured revision notes", "系统化复习笔记")}</span></h1>
 <p class="lede">{bi("Four modules, eleven lectures, one question per lecture. Start from the mind map, follow the route, then use the threads to connect ideas across weeks.",
                      "四个模块、十一讲、每讲一个核心问题。先看思维导图建立全局，再按学习路线逐讲复习，最后用知识主线把不同讲的概念串起来。")}</p>
-<div class="hero-cta"><a class="btn primary" href="mindmap.html">{bi("Open the mind map", "打开思维导图")} →</a><a class="btn" href="w01.html">{bi("Start at Week 1", "从第 1 讲开始")}</a><a class="btn" href="print.html">{bi("Open-book print pack", "开卷打印包")}</a></div>
+<div class="hero-cta"><a class="btn primary" href="mindmap.html">{bi("Open the mind map", "打开思维导图")} →</a><a class="btn" href="w01.html">{bi("Start at Week 1", "从第 1 讲开始")}</a><a class="btn" href="print.html">{bi("Revision print pack", "复习资料打印包")}</a></div>
 </div>
 {stats}
 </section>
@@ -391,6 +421,7 @@ def index_page():
 {mindmap("mm-home", course_tree(), 2, True, "mm-home")}</section>
 <section class="route"><div class="sec-title"><span class="sec-num">02</span><h2>{bi("Learning route", "学习路线")}</h2><span class="hint">{bi("each lecture answers one question", "每一讲回答一个问题")}</span></div>{"".join(rows)}</section>
 <section class="threads"><div class="sec-title"><span class="sec-num">03</span><h2>{bi("Threads across the unit", "贯穿全课的知识主线")}</h2><span class="hint">{bi("the same idea, met again in later weeks", "同一个思想，在后面的讲里再次出现")}</span></div>{"".join(threads)}</section>
+<section class="about card" id="about"><div class="sec-title"><span class="sec-num">04</span><h2>{bi("About & disclaimer", "关于与声明")}</h2></div>{about_html()}</section>
 <section class="howto">{bi("Language switch (top right): 中文 / 对照 / EN. English terms always stay visible because the exam is in English. Chips are links; <b>W3</b> marks a concept from another week.",
                        "右上角切换 中文 / 对照 / EN。考试是英文的，所以英文术语始终显示。小标签都是链接，带 <b>W3</b> 的来自其它讲。")}</section>'''
     return page("Software Tools 复习笔记 · Revision", body, side=False)
@@ -458,16 +489,19 @@ def print_page(rendered):
     exam = M.BY_ID["tb1-exam"]
     cover = f'''<section class="pp-cover">
 <div class="kicker">COMS10012 / COMSM0085 · TB1 · Weeks 0–10</div>
-<h1>{bi("Software Tools — open-book exam pack", "Software Tools 开卷考试打印包")}</h1>
+<h1>{bi("Software Tools — revision print pack", "Software Tools 复习资料打印包")}</h1>
 <p class="pp-lede">{bi(f"{len(M.CONCEPTS)} notes, {len(M.CMDS)} commands, every lecture's checklist, and an A–Z index. Every note has a code <b>week.section.item</b> (e.g. <b>2.3.4</b>); arrows like <b>[2.3.4]</b> inside a note point to the related note.",
                        f"共 {len(M.CONCEPTS)} 个知识点、{len(M.CMDS)} 条命令、每讲考点速记，以及 A–Z 术语索引。每个知识点都有编号 <b>讲.小节.条目</b>（如 <b>2.3.4</b>）；笔记中的 <b>[2.3.4]</b> 表示相关知识点的位置。")}</p>
-<div class="pp-howto"><b>{bi("How to use in the exam", "考场用法")}</b><ol>
+<div class="pp-howto"><b>{bi("How to look things up", "查找方法")}</b><ol>
 <li>{bi("Know the term? Part D index → code → find it in Part C.", "知道英文术语 → 查 D 部分索引 → 按编号在 C 部分找到笔记。")}</li>
 <li>{bi("Question names a command? Part B.", "题目里出现命令/选项 → 查 B 部分命令速查。")}</li>
 <li>{bi("Need the big picture of a topic? Part A (one block per lecture).", "需要快速回忆某讲要点 → 查 A 部分考点速记。")}</li>
 </ol></div>
 <div class="pp-parts"><div><b>A</b>{bi("Exam checklists", "考点速记")}</div><div><b>B</b>{bi("Command cheatsheet", "命令速查")}</div><div><b>C</b>{bi("All notes by lecture", "全部知识点（按讲）")}</div><div><b>D</b>{bi("A–Z term index", "A–Z 术语索引")}</div></div>
+<p class="pp-author">{bi("Compiled by Xuanyu Meng · github.com/bigorangemeng-cyber/software-tools-revision", "整理：Xuanyu Meng · github.com/bigorangemeng-cyber/software-tools-revision")}</p>
 <h3>{bi("Lectures", "目录")}</h3><ol class="pp-toc">{toc}</ol>
+<div class="pp-disc">{bi("Personal revision notes, not official course material; not affiliated with or endorsed by the University of Bristol. Copyright in the original course materials belongs to their authors (github.com/cs-uob/software-tools); this pack contains the author's own summaries with short quoted examples. Non-commercial study use only.",
+"个人复习笔记，非官方课程资料，与布里斯托大学无隶属关系、未经其认可。课程原始材料版权归原作者所有（github.com/cs-uob/software-tools）；本打印包为作者自行概括整理，仅少量引用示例。仅限非商业学习使用。")}</div>
 <div class="pp-c pp-exam"><div class="pp-cb"><div class="l-en" lang="en">{rendered["tb1-exam"][1]}</div><div class="l-zh" lang="zh-CN">{rendered["tb1-exam"][2]}</div></div></div>
 </section>'''
     # ---- A: checklists
@@ -520,7 +554,7 @@ def print_page(rendered):
            f'<span>{bi("Tip: A4, scale 100%, tick “Background graphics”. Choose 对照 / 中文 / EN first; English terms are kept in every mode.", "提示：A4 纸、缩放 100%、勾选“背景图形”。先在右上角选 对照 / 中文 / EN；任何模式下英文术语都会保留。")}</span></div>')
     body = f'<div class="pp">{bar}{cover}{part_a}{part_b}{part_c}{part_d}</div>'
     body = re.sub(r'href="w\d\d\.html#c-([\w-]+)"', r'href="#p-\1"', body)
-    return page("Open-book exam pack 开卷打印包 — Software Tools", body, side=False)
+    return page("Revision print pack 复习资料打印包 — Software Tools", body, side=False)
 
 
 def main():
@@ -532,7 +566,7 @@ def main():
         pages[f'{w["slug"]}.html'] = page(f'W{n} {w["en"]} · {w["zh"]} — Software Tools',
                                           week_main(n, rendered) + prevnext(n), active=n)
     allbody = (f'<h1>{bi("All lectures in one page", "全部内容（单页 / 打印版）")}</h1>'
-               f'<p class="lede">{bi("Everything on one page: handy for Ctrl+F and for printing notes for the open-book exam.", "全部内容在一页：方便 Ctrl+F 搜索，也方便打印成开卷考试用的笔记。")}</p>'
+               f'<p class="lede">{bi("Everything on one page: handy for Ctrl+F and for printing.", "全部内容在一页：方便 Ctrl+F 搜索，也方便打印成开卷考试用的笔记。")}</p>'
                + "".join(week_main(n, rendered, "h1") for n in sorted(M.WEEKS)))
     # on all.html, links should stay on the page
     allbody = re.sub(r'href="w\d\d\.html#', 'href="#', allbody)

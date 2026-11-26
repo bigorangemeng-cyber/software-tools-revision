@@ -38,7 +38,7 @@ c("tb1-exam", "Exams (TB1 structure)", "考试结构（TB1）", exam=True,
 | 8 | SQL | Databases | 3 |
 | 9 | More SQL | Databases | 3 |
 | 10 | Datalog | Databases | 3 |
-! Open book: how you take notes is up to you. This site's Open-book print pack is designed to be printed.
+! Open book: how you take notes is up to you. This site's revision print pack is designed to be printed.
 """,
   zh=r"""
 - 两场考试：第 1–10 讲（TB1）和第 11–20 讲。都是**四选一选择题**、**开卷**。及格线 40%（本科）/ 50%（研究生）。
@@ -56,7 +56,7 @@ c("tb1-exam", "Exams (TB1 structure)", "考试结构（TB1）", exam=True,
 | 8 | SQL 设计 | 数据库 | 3 |
 | 9 | SQL 查询 | 数据库 | 3 |
 | 10 | Datalog | 数据库 | 3 |
-! 开卷考试：笔记形式不限。本站的“开卷打印包”就是为打印准备的。
+! 开卷考试：笔记形式不限。本站的“复习资料打印包”就是为打印准备的。
 """,
   see=["unit-aim"])
 

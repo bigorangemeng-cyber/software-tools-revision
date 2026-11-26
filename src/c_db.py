@@ -139,12 +139,12 @@ S("nf", "Normalisation", "规范化")
 c("functional-dependency", "Functional dependencies", "函数依赖", exam=True,
   en=r"""
 - **X → Y** (X functionally determines Y) iff for every value of X there is **at most one** value of Y. E.g. StudentID → Grade (many students may share a grade). It's a feature of the process generating the data, not a coincidence of the current rows.
-- **Partial** dependency: a non-key attribute depends on only **part** of a composite key. UnitResults(*StudentID, *Unit*, Hairstyle, Grade, HairStyleRating): Hairstyle depends on StudentID alone.
+- **Partial** dependency: a non-key attribute depends on only **part** of a composite key. UnitResults(StudentID, Unit, Hairstyle, Grade, HairStyleRating) with key (StudentID, Unit): Hairstyle depends on StudentID alone.
 - **Transitive** dependency: X → Y → Z, so Z depends on X only *through* Y (Hairstyle → HairStyleRating).
 """,
   zh=r"""
 - **X → Y**（X 函数决定 Y）当且仅当对 X 的每个值，Y **至多有一个**值。如 StudentID → Grade（多个学生可以同分）。这是产生数据的过程本身的性质，而不是当前数据碰巧如此。
-- **部分**依赖：某个非键属性只依赖复合键的**一部分**。UnitResults(*StudentID, *Unit, Hairstyle, Grade, HairStyleRating)：Hairstyle 只依赖 StudentID。
+- **部分**依赖：某个非键属性只依赖复合键的**一部分**。UnitResults(StudentID, Unit, Hairstyle, Grade, HairStyleRating)，键为 (StudentID, Unit)：Hairstyle 只依赖 StudentID。
 - **传递**依赖：X → Y → Z，Z 只是*通过* Y 依赖 X（Hairstyle → HairStyleRating）。
 """,
   see=["normal-forms", "keys"])
@@ -336,11 +336,13 @@ c("where", "WHERE filters", "WHERE 过滤", exam=True,
 - Only rows matching the expression are returned: `WHERE Country='France'`, combine with `AND` / `OR`.
 - `LIKE` with wildcards: `%` any string, `_` one character (`Email LIKE '%yahoo%'`).
 - Comparisons `< <= > >= = !=`; sets `IN ('France','Germany')`; missing values `IS NULL` / `IS NOT NULL` (not `= NULL`).
+! `=` is exact: `WHERE lead = 'Keanu %'` looks for a lead literally called "Keanu %". Only `LIKE` treats `%` and `_` as wildcards.
 """,
   zh=r"""
 - 只返回满足表达式的行：`WHERE Country='France'`，用 `AND` / `OR` 组合。
 - `LIKE` 通配：`%` 任意字符串，`_` 一个字符（`Email LIKE '%yahoo%'`）。
 - 比较 `< <= > >= = !=`；集合 `IN ('France','Germany')`；空值用 `IS NULL` / `IS NOT NULL`（不能写 `= NULL`）。
+! `=` 是精确比较：`WHERE lead = 'Keanu %'` 找的是名字恰好叫 “Keanu %” 的主演。只有 `LIKE` 才把 `%` 和 `_` 当通配符。
 """,
   code=r"""
 SELECT CustomerId, City FROM Customer WHERE Country='France' AND City='Paris';
@@ -421,6 +423,7 @@ c("join-types", "Types of join", "连接的类型", exam=True,
 | `FULL [OUTER] JOIN` | **all** | **all** | either optional |
 | `CROSS JOIN` (no ON) | every a × every b | | Cartesian product |
 - OUTER joins fill the missing side with NULL. FULL = every record of a or b at least once; CROSS pairs everything with everything, no matching.
+- A row whose join column is NULL never matches (NULL = anything is not true), so an INNER JOIN drops it.
 """,
   zh=r"""
 | 连接（a ⋈ b，条件 a.id = b.id） | a 中的行 | b 中的行 | 适用 |
@@ -431,6 +434,7 @@ c("join-types", "Types of join", "连接的类型", exam=True,
 | `FULL [OUTER] JOIN` | **全部** | **全部** | 两边都可无 |
 | `CROSS JOIN`（无 ON） | 每个 a × 每个 b | | 笛卡尔积 |
 - 外连接用 NULL 填补缺失的一侧。FULL = a 或 b 的每条记录至少出现一次；CROSS 把所有行两两配对，不做匹配。
+- 连接列为 NULL 的行永远匹配不上（NULL 与任何值比较都不为真），所以内连接会把它丢掉。
 """,
   see=["join", "subquery"])
 
@@ -580,6 +584,33 @@ while (sqlite3_step(stmt) == SQLITE_ROW) { /* read columns */ }
 sqlite3_finalize(stmt);
 """,
   see=["sql-injection", "sql-from-code"])
+
+c("injection-defences", "Reading: SQL injection (OWASP)", "指定阅读：SQL 注入（OWASP）",
+  en=r"""
+- Cause: untrusted input concatenated into a query string, so data is interpreted as SQL code.
+- What an attacker can do: read data they shouldn't (`' OR '1'='1`), bypass logins, modify or delete data (`'; DROP TABLE …; --`), sometimes run commands on the server.
+- Variants: results shown directly (classic / `UNION`-based), inferred from error messages, or **blind** (inferred from true/false page differences or time delays).
+| Defence | Note |
+|---|---|
+| prepared statements / parameterised queries | the primary fix: SQL and data are sent separately |
+| stored procedures (built safely) | same idea when they don't build dynamic SQL inside |
+| allow-list input validation | e.g. table names or sort order from a fixed list |
+| escaping user input | last resort, error-prone |
+| least privilege | the app's DB account can't drop tables it doesn't need |
+""",
+  zh=r"""
+- 成因：把不可信的输入拼接进查询字符串，导致数据被当成 SQL 代码执行。
+- 攻击者能做什么：读取本不该看的数据（`' OR '1'='1`）、绕过登录、修改或删除数据（`'; DROP TABLE …; --`），有时还能在服务器上执行命令。
+- 类型：结果直接显示（经典 / 基于 `UNION`）、从错误信息推断，或**盲注**（从页面真/假差异或响应延时推断）。
+| 防御 | 说明 |
+|---|---|
+| 预编译语句 / 参数化查询 | 首要方案：SQL 和数据分开发送 |
+| 存储过程（安全编写） | 只要内部不再拼接动态 SQL，原理相同 |
+| 白名单校验输入 | 如表名、排序方向只能取固定列表中的值 |
+| 对输入转义 | 最后手段，容易出错 |
+| 最小权限 | 应用的数据库账号没有删除无关表的权限 |
+""",
+  see=["sql-injection", "prepared-statements"])
 
 S("rec", "SQL and recursion", "SQL 与递归")
 c("self-join", "Self-joins", "自连接", exam=True,

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="mode-both">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 9 SQL queries: elections and census · 实验 9：SQL 查询（选举与人口普查） — Software Tools</title>
+<script>(function(){var m='both';try{var p=new URLSearchParams(location.search).get('lang');m=p||localStorage.getItem('st-lang')||'both'}catch(e){}if(!/^(en|zh|both)$/.test(m))m='both';document.documentElement.className='mode-'+m})()</script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html"><span class="logo">$_</span><span class="l-en" lang="en">Software Tools · Revision</span><span class="l-zh" lang="zh-CN">Software Tools 复习笔记</span></a>
+  <nav class="topnav">
+    <a href="index.html"><span class="l-en ui" lang="en">Home</span><span class="l-zh ui" lang="zh-CN">首页</span></a>
+    <a href="mindmap.html"><span class="l-en ui" lang="en">Mind map</span><span class="l-zh ui" lang="zh-CN">思维导图</span></a>
+    <a href="labs.html"><span class="l-en ui" lang="en">Labs</span><span class="l-zh ui" lang="zh-CN">实验</span></a>
+    <a href="quiz.html"><span class="l-en ui" lang="en">Quiz</span><span class="l-zh ui" lang="zh-CN">自测</span></a>
+    <a href="glossary.html"><span class="l-en ui" lang="en">Glossary</span><span class="l-zh ui" lang="zh-CN">术语表</span></a>
+    <a href="commands.html"><span class="l-en ui" lang="en">Commands</span><span class="l-zh ui" lang="zh-CN">命令速查</span></a>
+    <a href="all.html"><span class="l-en ui" lang="en">All-in-one</span><span class="l-zh ui" lang="zh-CN">全文</span></a>
+    <a class="nav-print" href="print.html"><span class="l-en ui" lang="en">Print pack</span><span class="l-zh ui" lang="zh-CN">复习资料打印包</span></a>
+  </nav>
+  <div class="langs" role="group" aria-label="language">
+    <button data-mode="zh" type="button">中文</button><button data-mode="both" type="button">对照</button><button data-mode="en" type="button">EN</button>
+  </div>
+</header>
+<div class="layout"><nav class="sidebar" aria-label="weeks"><div class="navmod m-intro"><div class="navmod-t"><span class="l-en" lang="en">Orientation</span><span class="l-zh" lang="zh-CN">导论</span></div><ul><li><a href="w00.html"><span class="wn">W0</span><span class="l-en" lang="en">Introduction</span><span class="l-zh" lang="zh-CN">课程导论</span></a></li></ul></div><div class="navmod m-unix"><div class="navmod-t"><span class="l-en" lang="en">UNIX basics</span><span class="l-zh" lang="zh-CN">UNIX 基础</span></div><ul><li><a href="w01.html"><span class="wn">W1</span><span class="l-en" lang="en">System administration</span><span class="l-zh" lang="zh-CN">系统管理</span></a></li><li><a href="w02.html"><span class="wn">W2</span><span class="l-en" lang="en">POSIX fundamentals: the shell</span><span class="l-zh" lang="zh-CN">POSIX 基础：Shell</span></a></li><li><a href="w03.html"><span class="wn">W3</span><span class="l-en" lang="en">Regular expressions</span><span class="l-zh" lang="zh-CN">正则表达式</span></a></li></ul></div><div class="navmod m-git"><div class="navmod-t"><span class="l-en" lang="en">Version control</span><span class="l-zh" lang="zh-CN">版本控制</span></div><ul><li><a href="w04.html"><span class="wn">W4</span><span class="l-en" lang="en">Version control with Git</span><span class="l-zh" lang="zh-CN">Git 版本控制</span></a></li><li><a href="w05.html"><span class="wn">W5</span><span class="l-en" lang="en">Collaborating with Git</span><span class="l-zh" lang="zh-CN">Git 协作</span></a></li></ul></div><div class="navmod m-dev"><div class="navmod-t"><span class="l-en" lang="en">Development</span><span class="l-zh" lang="zh-CN">开发实践</span></div><ul><li><a href="w06.html"><span class="wn">W6</span><span class="l-en" lang="en">Testing</span><span class="l-zh" lang="zh-CN">测试</span></a></li><li><a href="w07.html"><span class="wn">W7</span><span class="l-en" lang="en">Debugging</span><span class="l-zh" lang="zh-CN">调试</span></a></li></ul></div><div class="navmod m-db"><div class="navmod-t"><span class="l-en" lang="en">Databases</span><span class="l-zh" lang="zh-CN">数据库</span></div><ul><li><a href="w08.html"><span class="wn">W8</span><span class="l-en" lang="en">Relational databases: design</span><span class="l-zh" lang="zh-CN">关系数据库：设计</span></a></li><li><a href="w09.html"><span class="wn">W9</span><span class="l-en" lang="en">Relational databases: queries</span><span class="l-zh" lang="zh-CN">关系数据库：查询</span></a></li><li><a href="w10.html"><span class="wn">W10</span><span class="l-en" lang="en">Databases beyond SQL: Datalog</span><span class="l-zh" lang="zh-CN">超越 SQL：Datalog</span></a></li></ul></div><div class="navmod m-lab"><div class="navmod-t"><span class="l-en" lang="en">Labs</span><span class="l-zh" lang="zh-CN">实验</span></div><ul><li><a href="l01.html"><span class="wn">L1</span><span class="l-en" lang="en">Welcome to the labs</span><span class="l-zh" lang="zh-CN">SSH、Vagrant 与 Debian 管理</span></a></li><li><a href="l02.html"><span class="wn">L2</span><span class="l-en" lang="en">Shell stuff</span><span class="l-zh" lang="zh-CN">Shell 展开、权限、脚本与管道</span></a></li><li><a href="l03.html"><span class="wn">L3</span><span class="l-en" lang="en">Regular expressions</span><span class="l-zh" lang="zh-CN">正则表达式（grep 与 sed）</span></a></li><li><a href="l04.html"><span class="wn">L4</span><span class="l-en" lang="en">Git on your own, then with GitHub</span><span class="l-zh" lang="zh-CN">单机 Git 与 GitHub</span></a></li><li><a href="l05.html"><span class="wn">L5</span><span class="l-en" lang="en">Collaborating with Git</span><span class="l-zh" lang="zh-CN">Git 协作</span></a></li><li><a href="l06.html"><span class="wn">L6</span><span class="l-en" lang="en">Testing</span><span class="l-zh" lang="zh-CN">Unity、TDD 与自动化测试</span></a></li><li><a href="l07.html"><span class="wn">L7</span><span class="l-en" lang="en">Debugging</span><span class="l-zh" lang="zh-CN">调试（crackme）</span></a></li><li><a href="l08.html"><span class="wn">L8</span><span class="l-en" lang="en">Entity relationships and schema design</span><span class="l-zh" lang="zh-CN">实体联系与模式设计</span></a></li><li><a href="l09.html" aria-current="page"><span class="wn">L9</span><span class="l-en" lang="en">SQL queries</span><span class="l-zh" lang="zh-CN">SQL 查询（选举与人口普查）</span></a></li><li><a href="l10.html"><span class="wn">L10</span><span class="l-en" lang="en">Datalog</span><span class="l-zh" lang="zh-CN">Datalog（家族树与访问控制）</span></a></li></ul></div></nav><main class="main"><div class="wk lab-page m-db" id="lab-9">
+<header class="wk-head"><div class="wk-badge">L9</div>
+<div class="kicker">Lab 09 · <span class="l-en" lang="en">Relational databases: queries</span><span class="l-zh" lang="zh-CN">关系数据库：查询</span></div>
+<h1><span class="l-en" lang="en">SQL queries: elections and census</span><span class="l-zh" lang="zh-CN">实验 9：SQL 查询（选举与人口普查）</span></h1>
+<div class="cq"><div class="cq-k"><span class="l-en" lang="en">Goal</span><span class="l-zh" lang="zh-CN">实验目标</span></div><div class="cq-q"><span class="l-en" lang="en">Answer each question with a single query over the 2014 Bristol elections and the 2011 census data, joining by names instead of hard-coding ids. All answers below were run against the real databases.</span><span class="l-zh" lang="zh-CN">用单条查询回答 2014 年布里斯托选举和 2011 年人口普查数据的问题，按名称连接而不是硬编码 id。下面所有答案都在真实数据库上运行验证过。</span></div></div>
+<div class="flow"><div><span class="rel-k"><span class="l-en" lang="en">Lecture notes</span><span class="l-zh" lang="zh-CN">对应讲义</span></span><a class="wk-link m-db" href="w09.html"><b>W9</b> <span class="l-en" lang="en">Relational databases: queries</span><span class="l-zh" lang="zh-CN">关系数据库：查询</span></a></div>
+<div><span class="rel-k"><span class="l-en" lang="en">Lab sheets</span><span class="l-zh" lang="zh-CN">实验原文</span></span><a href="https://github.com/cs-uob/software-tools/blob/main/09-sql/lab/README.md" rel="noopener"><code>README.md</code></a> <a href="https://github.com/cs-uob/software-tools/blob/main/09-sql/lab/Elections.db" rel="noopener"><code>Elections.db</code></a> <a href="https://github.com/cs-uob/software-tools/blob/main/09-sql/lab/Census.db" rel="noopener"><code>Census.db</code></a></div></div>
+</header>
+<section class="lab-boxes"><div class="lab-box exam"><h3>🎯 <span class="l-en" lang="en">What the exam asks</span><span class="l-zh" lang="zh-CN">考点</span></h3><div class="bi-body"><div class="l-en" lang="en"><ul><li><code>WHERE name = 'Keanu %'</code> is an exact comparison — <code>%</code> is only a wildcard with <code>LIKE</code> (example paper Q27).</li><li><code>ORDER BY revenue DESC LIMIT 3</code> = top three (Q28).</li><li>INNER JOIN keeps only rows that match on both sides (Q26).</li></ul></div><div class="l-zh" lang="zh-CN"><ul><li><code>WHERE name = 'Keanu %'</code> 是精确比较——<code>%</code> 只有配合 <code>LIKE</code> 才是通配符（样卷第 27 题）。</li><li><code>ORDER BY revenue DESC LIMIT 3</code> = 前三名（第 28 题）。</li><li>内连接只保留两边都能匹配的行（第 26 题）。</li></ul></div></div></div><div class="lab-box pit"><h3>⚠️ <span class="l-en" lang="en">Common mistakes</span><span class="l-zh" lang="zh-CN">易错点</span></h3><div class="bi-body"><div class="l-en" lang="en"><ul><li>Percentages with integers: <code>100 * a / b</code> truncates → write <code>100.0 * a / b</code>.</li><li>Grouping by name when names repeat (ward names are not unique) → group by the code/id.</li><li><code>WHERE</code> on an aggregate → use <code>HAVING</code>.</li></ul></div><div class="l-zh" lang="zh-CN"><ul><li>用整数算百分比：<code>100 * a / b</code> 会截断 → 写成 <code>100.0 * a / b</code>。</li><li>名字有重复时按名字分组（选区名不唯一）→ 按编码/id 分组。</li><li>对聚合结果用 <code>WHERE</code> → 应该用 <code>HAVING</code>。</li></ul></div></div></div></section>
+<section class="structure"><div class="card st-chain"><h2><span class="l-en" lang="en">Lab steps</span><span class="l-zh" lang="zh-CN">实验步骤</span></h2><ol class="lab-steps"><li><a href="#lp-l9-schema"><span class="l-en" lang="en">The two schemas</span><span class="l-zh" lang="zh-CN">两个数据库的结构</span></a></li><li><a href="#lp-l9-easy-e"><span class="l-en" lang="en">Easier: elections</span><span class="l-zh" lang="zh-CN">基础题：选举</span></a></li><li><a href="#lp-l9-easy-c"><span class="l-en" lang="en">Easier: census</span><span class="l-zh" lang="zh-CN">基础题：人口普查</span></a></li><li><a href="#lp-l9-hard-e"><span class="l-en" lang="en">Harder: elections</span><span class="l-zh" lang="zh-CN">进阶题：选举</span></a></li><li><a href="#lp-l9-hard-c"><span class="l-en" lang="en">Harder: census</span><span class="l-zh" lang="zh-CN">进阶题：人口普查</span></a></li></ol></div></section>
+<article class="concept lab-part" id="lp-l9-schema"><h3><a class="anchor" href="#lp-l9-schema">#</a><span class="term-en">The two schemas</span><span class="term-zh l-zh">两个数据库的结构</span></h3><pre class="code">Elections:  Ward(id, name, electorate)  Party(id, name)
+            Candidate(id, name, party -&gt; Party, ward -&gt; Ward, votes)
+Census:     Country(code, name)  Region(code, parent -&gt; Country, name)
+            County(code, name, parent -&gt; Region, country)        -- &quot;CLU&quot;
+            Ward(code, name, parent -&gt; County)  Occupation(id, name)  -- 9 classes
+            Statistic(wardId -&gt; Ward, occId -&gt; Occupation, gender 1=F 0=M, data)</pre><footer class="rel"><div class="rel-row"><span class="rel-k"><span class="l-en" lang="en">Notes</span><span class="l-zh" lang="zh-CN">对应笔记</span></span><a class="chip m-db" href="w09.html#c-join" title="JOIN … ON · JOIN … ON 连接"><span class="cw">W9</span><b>JOIN … ON</b><small class="l-zh">JOIN … ON 连接</small></a><a class="chip m-db" href="w08.html#c-foreign-key" title="Foreign keys · 外键"><span class="cw">W8</span><b>Foreign keys</b><small class="l-zh">外键</small></a></div></footer></article><article class="concept lab-part" id="lp-l9-easy-e"><h3><a class="anchor" href="#lp-l9-easy-e">#</a><span class="term-en">Easier: elections</span><span class="term-zh l-zh">基础题：选举</span></h3><details class="sol"><summary><span class="l-en" lang="en">Show reference solution</span><span class="l-zh" lang="zh-CN">展开参考答案</span><span class="sol-hint"><span class="l-en" lang="en">try it yourself first</span><span class="l-zh" lang="zh-CN">先自己做</span></span></summary><pre class="code">-- 1 parties, alphabetical
+SELECT DISTINCT Party.name FROM Candidate JOIN Party ON Candidate.party = Party.id
+ORDER BY Party.name;
+-- 2 parties in Bedminster
+SELECT DISTINCT Party.name FROM Candidate
+JOIN Party ON Candidate.party = Party.id JOIN Ward ON Candidate.ward = Ward.id
+WHERE Ward.name = &#x27;Bedminster&#x27; ORDER BY Party.name;
+-- 3 Labour votes in Stockwood                                        -&gt; 855
+SELECT Candidate.votes FROM Candidate
+JOIN Party ON Candidate.party = Party.id JOIN Ward ON Candidate.ward = Ward.id
+WHERE Ward.name = &#x27;Stockwood&#x27; AND Party.name = &#x27;Labour&#x27;;
+-- 4 Southville candidates, winner first    -&gt; Charlie Bolton, Green, 1700 ...
+SELECT Candidate.name, Party.name, Candidate.votes FROM Candidate
+JOIN Party ON Candidate.party = Party.id JOIN Ward ON Candidate.ward = Ward.id
+WHERE Ward.name = &#x27;Southville&#x27; ORDER BY Candidate.votes DESC;
+-- 5 Knowle winner only                -&gt; Gary Hopkins, Liberal Democrat, 1659
+...same as 4 with &#x27;Knowle&#x27; ... ORDER BY Candidate.votes DESC LIMIT 1;</pre></details><footer class="rel"><div class="rel-row"><span class="rel-k"><span class="l-en" lang="en">Notes</span><span class="l-zh" lang="zh-CN">对应笔记</span></span><a class="chip m-db" href="w09.html#c-select" title="SELECT, ORDER BY, LIMIT · SELECT、ORDER BY、LIMIT"><span class="cw">W9</span><b>SELECT, ORDER BY, LIMIT</b><small class="l-zh">SELECT、ORDER BY、LIMIT</small></a><a class="chip m-db" href="w09.html#c-join" title="JOIN … ON · JOIN … ON 连接"><span class="cw">W9</span><b>JOIN … ON</b><small class="l-zh">JOIN … ON 连接</small></a></div></footer></article><article class="concept lab-part" id="lp-l9-easy-c"><h3><a class="anchor" href="#lp-l9-easy-c">#</a><span class="term-en">Easier: census</span><span class="term-zh l-zh">基础题：人口普查</span></h3><details class="sol"><summary><span class="l-en" lang="en">Show reference solution</span><span class="l-zh" lang="zh-CN">展开参考答案</span><span class="sol-hint"><span class="l-en" lang="en">try it yourself first</span><span class="l-zh" lang="zh-CN">先自己做</span></span></summary><pre class="code">-- 1 CLU, region, country of Cabot
+--   -&gt; Bristol, City of (E06000023) / South West (E12000009) / England (E92000001)
+SELECT Ward.name, County.name, County.code, Region.name, Region.code, Country.name, Country.code
+FROM Ward JOIN County ON Ward.parent = County.code
+JOIN Region ON County.parent = Region.code JOIN Country ON Region.parent = Country.code
+WHERE Ward.name = &#x27;Cabot&#x27;;
+-- 2 women managers in Cabot (occupation 1)                          -&gt; 229
+SELECT data FROM Statistic JOIN Ward ON Statistic.wardId = Ward.code
+WHERE Ward.name = &#x27;Cabot&#x27; AND occId = 1 AND gender = 1;
+-- 3 Stoke Bishop: men per occupation, columns name, number
+SELECT Occupation.name AS name, Statistic.data AS number
+FROM Statistic JOIN Ward ON Statistic.wardId = Ward.code
+JOIN Occupation ON Statistic.occId = Occupation.id
+WHERE Ward.name = &#x27;Stoke Bishop&#x27; AND gender = 0 ORDER BY Occupation.id;</pre></details><footer class="rel"><div class="rel-row"><span class="rel-k"><span class="l-en" lang="en">Notes</span><span class="l-zh" lang="zh-CN">对应笔记</span></span><a class="chip m-db" href="w09.html#c-select" title="SELECT, ORDER BY, LIMIT · SELECT、ORDER BY、LIMIT"><span class="cw">W9</span><b>SELECT, ORDER BY, LIMIT</b><small class="l-zh">SELECT、ORDER BY、LIMIT</small></a><a class="chip m-db" href="w09.html#c-join" title="JOIN … ON · JOIN … ON 连接"><span class="cw">W9</span><b>JOIN … ON</b><small class="l-zh">JOIN … ON 连接</small></a></div></footer></article><article class="concept lab-part" id="lp-l9-hard-e"><h3><a class="anchor" href="#lp-l9-hard-e">#</a><span class="term-en">Harder: elections</span><span class="term-zh l-zh">进阶题：选举</span></h3><details class="sol"><summary><span class="l-en" lang="en">Show reference solution</span><span class="l-zh" lang="zh-CN">展开参考答案</span><span class="sol-hint"><span class="l-en" lang="en">try it yourself first</span><span class="l-zh" lang="zh-CN">先自己做</span></span></summary><pre class="code">-- 1 total votes in Bristol                                          -&gt; 78807
+SELECT sum(votes) FROM Candidate;
+-- 2 Windmill Hill: votes and % of electorate                   -&gt; 3818 | 40.4
+SELECT sum(c.votes) AS votes, round(100.0 * sum(c.votes) / w.electorate, 1) AS percent
+FROM Candidate c JOIN Ward w ON c.ward = w.id WHERE w.name = &#x27;Windmill Hill&#x27;;
+-- 3 Southville: % of the ward&#x27;s votes          -&gt; Bolton 42.5, Phipps 33.1 ...
+SELECT c.name, p.name,
+       round(100.0 * c.votes / (SELECT sum(votes) FROM Candidate WHERE ward = c.ward), 1) AS percent
+FROM Candidate c JOIN Party p ON c.party = p.id JOIN Ward w ON c.ward = w.id
+WHERE w.name = &#x27;Southville&#x27; ORDER BY percent DESC;
+-- 4 Conservative % in each ward (sub-query as a table)        -&gt; 24 rows
+SELECT w.name, round(100.0 * c.votes / t.total, 1) AS percent
+FROM Candidate c JOIN Party p ON c.party = p.id JOIN Ward w ON c.ward = w.id
+JOIN (SELECT ward, sum(votes) AS total FROM Candidate GROUP BY ward) t ON t.ward = c.ward
+WHERE p.name = &#x27;Conservative&#x27; ORDER BY w.name;
+-- 5 Labour&#x27;s rank in Whitchurch Park = 1 + candidates with more votes  -&gt; 3
+SELECT 1 + count(*) FROM Candidate c JOIN Ward w ON c.ward = w.id
+WHERE w.name = &#x27;Whitchurch Park&#x27;
+  AND c.votes &gt; (SELECT c2.votes FROM Candidate c2 JOIN Party p ON c2.party = p.id
+                 WHERE c2.ward = c.ward AND p.name = &#x27;Labour&#x27;);
+-- 6 total votes per party                -&gt; Labour 22785, Conservative 18367 ...
+SELECT p.name AS party, sum(c.votes) AS votes
+FROM Candidate c JOIN Party p ON c.party = p.id GROUP BY p.id ORDER BY votes DESC;
+-- 7 wards where Green beat Labour (self-join on Candidate)
+--   -&gt; Bishopston 1078, Redland 776, Southville 378, Stoke Bishop 45
+SELECT w.name AS ward, g.votes - l.votes AS difference
+FROM Ward w
+JOIN Candidate g ON g.ward = w.id JOIN Party pg ON g.party = pg.id AND pg.name = &#x27;Green&#x27;
+JOIN Candidate l ON l.ward = w.id JOIN Party pl ON l.party = pl.id AND pl.name = &#x27;Labour&#x27;
+WHERE g.votes &gt; l.votes ORDER BY difference DESC;</pre><div class="bi-body"><div class="l-en" lang="en"><p>Patterns to recognise: totals → <code>sum</code>; percentage → <code>100.0 *</code> and a per-ward total (correlated sub-query or a grouped sub-query joined as a table); rank → count who beat you; compare two rows of the same table → join it twice under different aliases.</p></div><div class="l-zh" lang="zh-CN"><p>要认出的套路：总数 → <code>sum</code>；百分比 → <code>100.0 *</code> 加每个选区的总数（相关子查询，或把分组子查询当表连接）；排名 → 数有几个人比你多；同一张表里两行比较 → 用不同别名连接两次。</p></div></div></details><footer class="rel"><div class="rel-row"><span class="rel-k"><span class="l-en" lang="en">Notes</span><span class="l-zh" lang="zh-CN">对应笔记</span></span><a class="chip m-db" href="w09.html#c-aggregate" title="Aggregates &amp; GROUP BY · 聚合函数与 GROUP BY"><span class="cw">W9</span><b>Aggregates &amp; GROUP BY</b><small class="l-zh">聚合函数与 GROUP BY</small></a><a class="chip m-db" href="w09.html#c-subquery" title="Sub-queries · 子查询"><span class="cw">W9</span><b>Sub-queries</b><small class="l-zh">子查询</small></a><a class="chip m-db" href="w09.html#c-join" title="JOIN … ON · JOIN … ON 连接"><span class="cw">W9</span><b>JOIN … ON</b><small class="l-zh">JOIN … ON 连接</small></a><a class="chip m-db" href="w10.html#c-self-join" title="Self-joins · 自连接"><span class="cw">W10</span><b>Self-joins</b><small class="l-zh">自连接</small></a></div></footer></article><article class="concept lab-part" id="lp-l9-hard-c"><h3><a class="anchor" href="#lp-l9-hard-c">#</a><span class="term-en">Harder: census</span><span class="term-zh l-zh">进阶题：人口普查</span></h3><details class="sol"><summary><span class="l-en" lang="en">Show reference solution</span><span class="l-zh" lang="zh-CN">展开参考答案</span><span class="sol-hint"><span class="l-en" lang="en">try it yourself first</span><span class="l-zh" lang="zh-CN">先自己做</span></span></summary><pre class="code">-- 1 women in sales &amp; customer service, Cabot                        -&gt; 362
+SELECT data FROM Statistic s JOIN Ward w ON s.wardId = w.code
+JOIN Occupation o ON s.occId = o.id
+WHERE w.name = &#x27;Cabot&#x27; AND o.name LIKE &#x27;Sales%&#x27; AND gender = 1;
+-- 2 everyone in that class in Cabot (sum over genders)              -&gt; 663
+-- 3 caring, leisure &amp; other service in City of Bristol CLU        -&gt; 17934
+SELECT sum(data) FROM Statistic s JOIN Ward w ON s.wardId = w.code
+JOIN County c ON w.parent = c.code JOIN Occupation o ON s.occId = o.id
+WHERE c.name = &#x27;Bristol, City of&#x27; AND o.name LIKE &#x27;Caring%&#x27;;
+-- 4 Cabot: people per occupation class          (GROUP BY o.id, 9 rows)
+-- 5 smallest ward by working population  -&gt; 81, St. Martin&#x27;s, Isles of Scilly
+SELECT sum(data) AS pop, w.name, c.name FROM Statistic s
+JOIN Ward w ON s.wardId = w.code JOIN County c ON w.parent = c.code
+GROUP BY w.code ORDER BY pop ASC LIMIT 1;
+-- 6 smallest and largest in one table  (UNION; largest = City and Hunslet, Leeds, 16717)
+SELECT * FROM (... ORDER BY pop ASC  LIMIT 1)
+UNION
+SELECT * FROM (... ORDER BY pop DESC LIMIT 1);
+-- 7 average ward working population in London                   -&gt; 6327.4
+SELECT avg(pop) FROM (SELECT sum(data) AS pop FROM Statistic s
+  JOIN Ward w ON s.wardId = w.code JOIN County c ON w.parent = c.code
+  JOIN Region r ON c.parent = r.code WHERE r.name = &#x27;London&#x27; GROUP BY w.code);
+-- 8 same for every region: GROUP BY region in the outer query (9 rows)
+-- 9 % of managers who are women, per region       (CASE inside sum)
+SELECT r.name, round(100.0 * sum(CASE WHEN gender = 1 THEN data ELSE 0 END) / sum(data), 2)
+FROM Statistic s JOIN Ward w ON s.wardId = w.code JOIN County c ON w.parent = c.code
+JOIN Region r ON c.parent = r.code WHERE s.occId = 1 GROUP BY r.code;
+-- 10 London CLUs x occupation with count &gt;= 10000, ascending
+SELECT c.name AS CLU, o.name AS occupation, sum(data) AS count
+FROM Statistic s JOIN Ward w ON s.wardId = w.code JOIN County c ON w.parent = c.code
+JOIN Region r ON c.parent = r.code JOIN Occupation o ON s.occId = o.id
+WHERE r.name = &#x27;London&#x27; GROUP BY c.code, o.id HAVING count &gt;= 10000 ORDER BY count;
+-- 11 occupation | women | men   (two CASE sums, GROUP BY occupation)
+-- 12 query 9 UNION ALL one extra row &#x27;England&#x27; computed over all regions</pre><div class="bi-body"><div class="l-en" lang="en"><p>New tools here: <code>CASE WHEN … THEN … ELSE … END</code> inside <code>sum</code> to split by gender; <code>UNION</code> to stack two one-row results; <code>HAVING</code> on the aggregate alias.</p></div><div class="l-zh" lang="zh-CN"><p>这里用到的新工具：在 <code>sum</code> 里用 <code>CASE WHEN … THEN … ELSE … END</code> 按性别拆分；用 <code>UNION</code> 把两个单行结果叠起来；对聚合别名用 <code>HAVING</code>。</p></div></div></details><footer class="rel"><div class="rel-row"><span class="rel-k"><span class="l-en" lang="en">Notes</span><span class="l-zh" lang="zh-CN">对应笔记</span></span><a class="chip m-db" href="w09.html#c-aggregate" title="Aggregates &amp; GROUP BY · 聚合函数与 GROUP BY"><span class="cw">W9</span><b>Aggregates &amp; GROUP BY</b><small class="l-zh">聚合函数与 GROUP BY</small></a><a class="chip m-db" href="w09.html#c-having" title="HAVING · HAVING 分组过滤"><span class="cw">W9</span><b>HAVING</b><small class="l-zh">HAVING 分组过滤</small></a><a class="chip m-db" href="w09.html#c-subquery" title="Sub-queries · 子查询"><span class="cw">W9</span><b>Sub-queries</b><small class="l-zh">子查询</small></a><a class="chip m-db" href="w09.html#c-select-order" title="How to build a SELECT · 如何构造 SELECT"><span class="cw">W9</span><b>How to build a SELECT</b><small class="l-zh">如何构造 SELECT</small></a></div></footer></article>
+</div><nav class="pn"><a href="l08.html">← L8 <span class="l-en" lang="en">Entity relationships and schema design</span><span class="l-zh" lang="zh-CN">实验 8：实体联系与模式设计</span></a><a href="l10.html">L10 <span class="l-en" lang="en">Datalog: family tree and access control</span><span class="l-zh" lang="zh-CN">实验 10：Datalog（家族树与访问控制）</span> →</a></nav></main></div>
+<footer class="foot"><span class="l-en" lang="en">© 2026 Xuanyu Meng · Personal revision notes for COMS10012 / COMSM0085 Software Tools, weeks 0–10. Not affiliated with or endorsed by the University of Bristol; copyright in the original course materials belongs to their authors. </span><span class="l-zh" lang="zh-CN">© 2026 Xuanyu Meng · Software Tools（COMS10012 / COMSM0085）第 0–10 讲个人复习笔记。与布里斯托大学及课程团队无隶属关系，亦未经其认可；课程原始材料版权归原作者所有。</span> <a href="index.html#about"><span class="l-en" lang="en">Disclaimer</span><span class="l-zh" lang="zh-CN">完整声明</span></a></footer>
+<script src="assets/app.js"></script>
+<script src="assets/mindmap.js"></script>
+</body>
+</html>

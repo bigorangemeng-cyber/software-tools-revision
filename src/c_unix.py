@@ -25,7 +25,10 @@ c("tb1-exam", "Exams (TB1 structure)", "考试结构（TB1）", exam=True,
   en=r"""
 - Two exams: weeks 1–10 (TB1) and weeks 11–20. Both **four-option multiple choice**, **open book**. Pass mark 40% (UG) / 50% (PG).
 - Everything is examinable: lecture content, assigned reading, lab materials (unless marked non-examinable).
-- TB1: 3 questions per week × 10 weeks + 1 extra question from each lecturer = 32 questions.
+- TB1: 3 questions per week × 10 weeks + 1 extra question from each lecturer = 32 questions, **1 hour**, each worth 1 mark.
+- Answers go on a machine-read sheet: clear horizontal pencil marks through the letter; don't crease it.
+- Every question also offers **E. "I do not want any marks for this question"**. Its existence suggests wrong answers may cost marks — read the answer-sheet instructions and use E when you would only be guessing.
+- An official example paper with answers is in the course repo (`exams/tb1-example.pdf`, `tb1-example-answers.pdf`): its questions are scenario-based ("which command…", "what is the output…", "what does this error mean…").
 | Week | Topic | Module | Qs |
 |---|---|---|---|
 | 1 | System administration | UNIX basics | 3 |
@@ -43,7 +46,10 @@ c("tb1-exam", "Exams (TB1 structure)", "考试结构（TB1）", exam=True,
   zh=r"""
 - 两场考试：第 1–10 讲（TB1）和第 11–20 讲。都是**四选一选择题**、**开卷**。及格线 40%（本科）/ 50%（研究生）。
 - 全部可考：讲座内容、指定阅读、实验材料（除非标注不考）。
-- TB1：每讲 3 题 × 10 讲 + 两位老师各 1 道附加题 = 32 题。
+- TB1：每讲 3 题 × 10 讲 + 两位老师各 1 道附加题 = 32 题，**1 小时**，每题 1 分。
+- 答案涂在机读答题卡上：用铅笔在字母上画清晰的横线；不要折叠答题卡。
+- 每题都有 **E 选项“本题我不要分”**。有这个选项说明答错可能扣分——以答题卡上的说明为准，只能瞎猜时选 E。
+- 课程仓库里有官方样卷和答案（`exams/tb1-example.pdf`、`tb1-example-answers.pdf`）：题目都是情景题（“哪条命令……”“输出是什么……”“这个错误说明什么……”）。
 | 讲 | 主题 | 模块 | 题数 |
 |---|---|---|---|
 | 1 | 系统管理 | UNIX 基础 | 3 |
@@ -768,6 +774,41 @@ echo "${x:?x is not defined}"
 """,
   see=["quoting", "path", "strict-mode", "command-substitution"])
 
+c("param-expansion", "Parameter expansion: ${v%…} ${v#…}", "参数展开：${v%…} ${v#…}", exam=True,
+  en=r"""
+| Form | Result for `f=archive.tar.gz` / `p=/usr/bin/bash` |
+|---|---|
+| `${f%.*}` | remove **shortest** match from the end → `archive.tar` |
+| `${f%%.*}` | remove **longest** match from the end → `archive` |
+| `${f#*.}` | remove shortest match from the start → `tar.gz` |
+| `${f##*.}` | remove longest match from the start → `gz` (the extension) |
+| `${p##*/}` | → `bash` (same as `basename "$p"`) |
+| `${p%/*}` | → `/usr/bin` (same as `dirname "$p"`) |
+| `${#f}` | length → `14` |
+| `${v:-default}` | value, or `default` if unset/empty |
+| `${v:?message}` | value, or exit with `message` |
+- Mnemonic: `#` is left of `$` on the keyboard → trims the **start**; `%` is right → trims the **end**. Doubling makes it greedy.
+- `basename "$f" .jpg` also strips a given suffix: `for f in *.jpg; do convert "$f" "$(basename "$f" .jpg).png"; done`.
+! Official example paper: `for file in *; do echo "${file%.*}"; done` prints file names without extensions.
+""",
+  zh=r"""
+| 写法 | 对 `f=archive.tar.gz` / `p=/usr/bin/bash` 的结果 |
+|---|---|
+| `${f%.*}` | 从末尾删去**最短**匹配 → `archive.tar` |
+| `${f%%.*}` | 从末尾删去**最长**匹配 → `archive` |
+| `${f#*.}` | 从开头删去最短匹配 → `tar.gz` |
+| `${f##*.}` | 从开头删去最长匹配 → `gz`（扩展名） |
+| `${p##*/}` | → `bash`（等同 `basename "$p"`） |
+| `${p%/*}` | → `/usr/bin`（等同 `dirname "$p"`） |
+| `${#f}` | 长度 → `14` |
+| `${v:-default}` | 取值；未设置或为空时用 `default` |
+| `${v:?message}` | 取值；否则带 `message` 退出 |
+- 记法：键盘上 `#` 在 `$` 左边 → 删**开头**；`%` 在右边 → 删**结尾**。写两遍就是贪婪匹配。
+- `basename "$f" .jpg` 还能去掉指定后缀：`for f in *.jpg; do convert "$f" "$(basename "$f" .jpg).png"; done`。
+! 官方样卷：`for file in *; do echo "${file%.*}"; done` 打印去掉扩展名的文件名。
+""",
+  see=["variables", "globbing", "control-flow"])
+
 c("command-substitution", "Command substitution $( )", "命令替换 $( )", exam=True,
   en=r"""
 - `$(cmd)` runs cmd and **splices** its standard output into the command line (old form: backticks `` `cmd` ``).
@@ -833,6 +874,9 @@ c("redirection", "Redirection", "重定向", exam=True,
 | `cmd << EOF … EOF` | [[here-doc]]: following lines as stdin |
 | `cmd <(other)` | process substitution: other's output as a file name |
 | `-` as a file name | many tools: read stdin |
+| `cmd > /dev/null` | throw output away |
+- **Order matters**: `cmd > f 2>&1` = both to f; `cmd 2>&1 > f` = stderr to the *terminal* (where stdout pointed at that moment), stdout to f.
+- File names starting with `-` look like options: `rm ./-f` or `rm -- -f`.
 - Lab: `ls -l > tmp`, then compare with the live listing: `ls -l | diff tmp -` or `diff tmp <(ls -l)`; log with `> difflog`, then `>> difflog`.
 """,
   zh=r"""
@@ -848,6 +892,9 @@ c("redirection", "Redirection", "重定向", exam=True,
 | `cmd << EOF … EOF` | [[here-doc]]：后续几行作为 stdin |
 | `cmd <(other)` | 进程替换：把 other 的输出当作一个文件名 |
 | 文件名写 `-` | 很多工具表示读 stdin |
+| `cmd > /dev/null` | 丢弃输出 |
+- **顺序有关系**：`cmd > f 2>&1` = 两者都写入 f；`cmd 2>&1 > f` = stderr 写到*终端*（当时 stdout 指向的地方），stdout 写入 f。
+- 以 `-` 开头的文件名会被当成选项：用 `rm ./-f` 或 `rm -- -f`。
 - 实验：`ls -l > tmp`，再与当前列表比较：`ls -l | diff tmp -` 或 `diff tmp <(ls -l)`；记录用 `> difflog`，再次用 `>> difflog` 追加。
 """,
   see=["streams", "pipes", "here-doc", "ssh-keys"])
@@ -884,6 +931,7 @@ c("filters", "Filter commands", "过滤类命令", exam=True,
 | `cut -d: -f1` | pick fields / characters |
 | `tee F` | copy stdin to F *and* stdout |
 | `column -ts,` | align into a table |
+| `less` | pager: arrows/Space scroll, `/` search, `q` quit |
 - All also accept file names: `head Readme.txt` = `cat Readme.txt | head`.
 - Word list exercises (`/usr/share/dict/words`): first word `head -n 1`, last `tail -n 1`, count `wc -l`, 6171st `head -n 6171 | tail -n 1`, first 5 of last 100 `tail -n 100 | head -n 5`, last 10 reversed `tail -n 10 | sort -r`.
 """,
@@ -900,6 +948,7 @@ c("filters", "Filter commands", "过滤类命令", exam=True,
 | `cut -d: -f1` | 取字段 / 字符 |
 | `tee F` | stdin 同时写到 F *和* stdout |
 | `column -ts,` | 对齐成表格 |
+| `less` | 分页器：方向键/空格翻页，`/` 搜索，`q` 退出 |
 - 都可直接接文件名：`head Readme.txt` = `cat Readme.txt | head`。
 - 单词表练习（`/usr/share/dict/words`）：第一个词 `head -n 1`，最后一个 `tail -n 1`，总数 `wc -l`，第 6171 个 `head -n 6171 | tail -n 1`，最后 100 个里的前 5 个 `tail -n 100 | head -n 5`，最后 10 个倒序 `tail -n 10 | sort -r`。
 """,
@@ -988,6 +1037,8 @@ c("shell-script", "Shell scripts & the shebang", "Shell 脚本与 shebang", exam
 - Make it executable: `chmod +x myscript`; run `./myscript` or install on [[path]].
 - Inside: `$0` script name, `$1 … $9` positional args, `$#` count, `$@` all args, `$?` last status, `exit N` set status.
 - Error messages go to stderr: `1>&2 echo "[WARNING]"`.
+- Run without the x bit: `sh my-script.sh`. Check scripts with **shellcheck** (flags unquoted variables, unportable syntax).
+- `case "$1" in a) …;; *) …;; esac` for multi-way branches; `IFS=','` changes how `for x in $(…)` splits.
 """,
   zh=r"""
 - 执行一个文件时：编译出的 **ELF** 二进制交给动态链接器（`ld-linux.so`）加载库；以 `#!`（**shebang**）开头的文本文件则交给该行指定的解释器运行。
@@ -995,6 +1046,8 @@ c("shell-script", "Shell scripts & the shebang", "Shell 脚本与 shebang", exam
 - 赋予执行权限：`chmod +x myscript`；用 `./myscript` 运行，或装到[[path]]上。
 - 脚本内：`$0` 脚本名，`$1 … $9` 位置参数，`$#` 参数个数，`$@` 全部参数，`$?` 上一个状态，`exit N` 设置退出状态。
 - 错误信息写到 stderr：`1>&2 echo "[WARNING]"`。
+- 不设执行权限也能运行：`sh my-script.sh`。用 **shellcheck** 检查脚本（会指出没加引号的变量、不可移植的写法）。
+- 多分支用 `case "$1" in a) …;; *) …;; esac`；`IFS=','` 改变 `for x in $(…)` 的分词方式。
 """,
   code=r"""
 #!/usr/bin/env bash
@@ -1476,5 +1529,16 @@ for n, e, z, k in [
     ("awk 'BEGIN{} /re/{} END{}'", "awk program structure", "awk 程序结构", "awk"),
     ("column -ts,", "align CSV into columns", "把 CSV 对齐成列", "filters"),
     ("seq 2 6", "print a number sequence", "生成数字序列", "control-flow"),
+]:
+    cmd(n, e, z, k)
+
+W(2)
+for n, e, z, k in [
+    ("${v%.*} ${v%%.*} ${v#*.} ${v##*.}", "trim shortest/longest suffix or prefix", "删去最短/最长的后缀或前缀", "param-expansion"),
+    ("${#v} ${v:-default}", "length / default value", "长度 / 默认值", "param-expansion"),
+    ("basename PATH [SUFFIX]; dirname PATH", "file name / directory part", "取文件名 / 目录部分", "param-expansion"),
+    ("shellcheck script.sh", "lint a shell script", "检查 shell 脚本", "shell-script"),
+    ("cmd > /dev/null 2>&1", "discard all output", "丢弃所有输出", "redirection"),
+    ("rm ./-f  (or rm -- -f)", "file names starting with -", "以 - 开头的文件名", "redirection"),
 ]:
     cmd(n, e, z, k)

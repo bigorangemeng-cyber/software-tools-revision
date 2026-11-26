@@ -254,11 +254,15 @@ c("strace", "strace", "strace 系统调用追踪", exam=True,
 - "What do you do?" tool. `strace CMD` runs CMD to completion, intercepting and printing every **system call** (calls to basic OS functions: `openat`, `read`, `write`, `execve`…).
 - `-e open,openat` show only these calls. `-p PID` attach to an **already running** process (find PID with `ps aux | grep NAME`).
 - Pre-reading: `man strace` Description and Notes. Output goes to stderr.
+- Each line: `call(arguments) = return value`; failures show `-1` and an error name (`ENOENT` no such file, `EACCES` permission denied).
+- Diagnosing a crash: `openat(AT_FDCWD, "data.txt", O_RDONLY) = -1 ENOENT` then `--- SIGSEGV {si_addr=NULL} ---` → the file didn't exist, `fopen` returned `NULL`, and the program used that NULL pointer without checking.
 """,
   zh=r"""
 - “你在干什么？”工具。`strace 命令` 运行该命令直到结束，拦截并打印每个**系统调用**（对操作系统基本功能的调用：`openat`、`read`、`write`、`execve`……）。
 - `-e open,openat` 只显示这些调用。`-p PID` 附加到**正在运行**的进程（用 `ps aux | grep 名字` 找 PID）。
 - 预读：`man strace` 的 Description 和 Notes。输出写到 stderr。
+- 每行格式：`调用(参数) = 返回值`；失败时返回 `-1` 并带错误名（`ENOENT` 文件不存在，`EACCES` 权限不足）。
+- 诊断崩溃：`openat(AT_FDCWD, "data.txt", O_RDONLY) = -1 ENOENT` 之后出现 `--- SIGSEGV {si_addr=NULL} ---` → 文件不存在，`fopen` 返回 `NULL`，程序没检查就用了这个空指针。
 """,
   code=r"""
 strace ls
@@ -463,11 +467,17 @@ c("makefile", "make & Makefiles", "make 与 Makefile",
   en=r"""
 - `make` builds targets from rules in a `Makefile` (here `GNUmakefile`), rebuilding only what's out of date. Built-in rules know how to turn `x.c` into `x` using `$(CC) $(CFLAGS)`.
 - Lab file: `CFLAGS=-g -O0` (debug symbols, no optimisation); `CRACKMES=$(patsubst %.c,%,$(wildcard *.c))` = every `.c` file minus the extension; `all: $(CRACKMES)`; `clean:` removes them; `.PHONY` targets aren't files.
+- **Pattern rule**: `%.o: %.c` then the recipe `$(CC) -c $< -o $@`. Automatic variables: `$@` = the target, `$<` = the first prerequisite, `$^` = all prerequisites. So `%.a: %.b` with `foo $< -b $@` builds `file.a` from `file.b` by running `foo file.b -b file.a`.
+- Recipe lines must start with a **tab**. `make` rebuilds a target only if a prerequisite is newer.
+- Other build tools: **Maven** (Java) can also fetch dependencies from remote repositories — a past exam asked why you'd use it instead of make.
 - The "proper" version of the [[b-script|./b build helper]].
 """,
   zh=r"""
 - `make` 根据 `Makefile`（这里叫 `GNUmakefile`）中的规则构建目标，只重建过期的部分。内置规则知道如何用 `$(CC) $(CFLAGS)` 把 `x.c` 变成 `x`。
 - 实验文件：`CFLAGS=-g -O0`（调试符号、不优化）；`CRACKMES=$(patsubst %.c,%,$(wildcard *.c))` = 所有 `.c` 文件去掉扩展名；`all: $(CRACKMES)`；`clean:` 删除它们；`.PHONY` 目标不是文件。
+- **模式规则**：`%.o: %.c`，配方 `$(CC) -c $< -o $@`。自动变量：`$@` = 目标，`$<` = 第一个依赖，`$^` = 全部依赖。所以 `%.a: %.b` 配 `foo $< -b $@` 表示由 `file.b` 生成 `file.a`，执行 `foo file.b -b file.a`。
+- 配方行必须以 **Tab** 开头。只有依赖比目标新时 `make` 才重建该目标。
+- 其它构建工具：**Maven**（Java）还能从远程仓库下载依赖——往年考题问过为什么用它而不用 make。
 - 是[[b-script|./b 构建助手]]的“正规”版本。
 """,
   code=r"""
@@ -493,5 +503,11 @@ for n, e, z, k in [
     ("strings -d BIN", "printable strings in a binary", "二进制中的可打印字符串", "crackme"),
     ("objdump -d BIN", "disassemble", "反汇编", "crackme"),
     ("make / make clean", "build / clean targets", "构建 / 清理", "makefile"),
+]:
+    cmd(n, e, z, k)
+
+W(7)
+for n, e, z, k in [
+    ("%.o: %.c  →  $(CC) -c $< -o $@", "make pattern rule; $@ target, $< first prerequisite, $^ all", "make 模式规则；$@ 目标，$< 第一个依赖，$^ 全部依赖", "makefile"),
 ]:
     cmd(n, e, z, k)

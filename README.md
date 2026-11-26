@@ -6,9 +6,11 @@
 
 [![Live site](https://img.shields.io/badge/在线预览-Live_site-0e8a76?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/)
 [![Mind map](https://img.shields.io/badge/思维导图-Mind_map-6047d6?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/mindmap.html)
+[![Labs](https://img.shields.io/badge/实验板块-Labs-b7791f?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/labs.html)
+[![Quiz](https://img.shields.io/badge/自测题库-Quiz-5b45c4?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/quiz.html)
 [![Print pack](https://img.shields.io/badge/复习资料打印包-Print_pack-c42a55?style=for-the-badge)](https://bigorangemeng-cyber.github.io/software-tools-revision/print.html)
 
-`152` concepts · `143` commands · `439` cross-links · `11` lectures · zero dependencies
+`155` concepts · `152` commands · `10` labs with solutions · `52` practice questions · `447` cross-links · zero dependencies
 
 作者 Author: **Xuanyu Meng** · [bigorangemeng-cyber](https://github.com/bigorangemeng-cyber)
 
@@ -32,6 +34,8 @@ A structured, cross-linked set of revision notes for the first term of *Software
 | 🧵 | **8 条知识主线**：如权限（W1 rwx → W2 setuid → W10 Datalog 访问控制）、安全、Git 时间旅行 | 8 threads that follow one idea across weeks |
 | 🌐 | **中文 / 对照 / EN 一键切换**，英文术语始终保留（考试是英文） | Chinese / side-by-side / English switch; English terms always visible |
 | 📖 | **术语表 + 命令速查**，中英文都可筛选 | Filterable glossary and command cheatsheet |
+| 🧪 | **实验板块**：每个实验的目标、步骤、考点、易错点和参考答案（默认折叠）；SQL 答案在实验数据库上运行验证，Datalog 规则用求值器验证 | Labs board: goal, steps, exam points, pitfalls and collapsed reference solutions (SQL run on the real lab databases, Datalog rules checked) |
+| ✅ | **自测题库**：52 道原创四选一题（仿 TB1 考卷），附解析与笔记链接；32 题限时模拟考试；自动错题本 | 52 original exam-style questions with explanations, a 32-question timed mock exam and a review list |
 | 🖨️ | **复习资料打印包**：考点速记、命令速查、全部笔记（带编号）、A–Z 索引，A4 排版，附现成 PDF | Revision print pack for A4 printing, with a ready-made PDF |
 | 📱 | 手机、深色模式、打印均已适配 | Works on mobile, dark mode and print |
 
@@ -42,6 +46,8 @@ A structured, cross-linked set of revision notes for the first term of *Software
 | ![Mind map](docs/screenshots/mindmap.jpg) | ![Lecture page](docs/screenshots/week.jpg) |
 | **知识点卡片 · Concept note** | **复习资料打印包 · Revision print pack** |
 | ![Concept note](docs/screenshots/note.jpg) | ![Print pack](docs/screenshots/print.jpg) |
+| **实验板块 · Labs** | **自测题库 · Practice questions** |
+| ![Lab solutions](docs/screenshots/lab.jpg) | ![Quiz](docs/screenshots/quiz.jpg) |
 
 ## 内容 · Contents
 
@@ -64,7 +70,9 @@ A structured, cross-linked set of revision notes for the first term of *Software
 1. 先看 **[思维导图](https://bigorangemeng-cyber.github.io/software-tools-revision/mindmap.html)** 建立全局。 Start with the mind map.
 2. 按**学习路线**逐讲复习：核心问题 → 逻辑链 → 知识点卡片 → 考点速记。 Work through each lecture in order.
 3. 用首页的**知识主线**把不同讲的概念串起来。 Use the threads to connect ideas across weeks.
-4. 需要纸质版时打印 **[复习资料打印包](https://bigorangemeng-cyber.github.io/software-tools-revision/print.html)**（或直接下载 [PDF](https://bigorangemeng-cyber.github.io/software-tools-revision/exam-pack-bilingual.pdf)）。 Print the revision pack if you prefer paper.
+4. 每讲配合对应的**[实验](https://bigorangemeng-cyber.github.io/software-tools-revision/labs.html)**：先自己做，再展开参考答案。 Work through the matching lab, then open the solutions.
+5. 用**[自测题库](https://bigorangemeng-cyber.github.io/software-tools-revision/quiz.html)**按讲练习，考前做一次模拟考试。 Practise by lecture, then sit a mock exam.
+6. 需要纸质版时打印 **[复习资料打印包](https://bigorangemeng-cyber.github.io/software-tools-revision/print.html)**（或直接下载 [PDF](https://bigorangemeng-cyber.github.io/software-tools-revision/exam-pack-bilingual.pdf)）。 Print the revision pack if you prefer paper.
 
 ## 本地运行与修改 · Build locally
 
@@ -82,9 +90,11 @@ src/
 ├── model.py      # tiny content model: W() week, S() section, c() concept, cmd() command
 ├── c_weeks.py    # modules, lecture summaries, exam checklists, threads
 ├── c_logic.py    # core question per lecture, one-line logic per section
+├── c_labs.py     # lab pages: steps, exam points, pitfalls, solutions
+├── c_quiz.py     # practice questions
 ├── c_unix.py     # W0–W3   c_git.py  W4–W5
 ├── c_dev.py      # W6–W7   c_db.py   W8–W10
-assets/           # style.css · app.js (language switch, filters) · mindmap.js (interactive SVG mind map)
+assets/           # style.css · app.js (language switch) · mindmap.js (SVG mind map) · quiz.js (quiz & mock exam)
 ```
 
 一个知识点长这样 · A concept looks like this:

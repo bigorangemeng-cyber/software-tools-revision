@@ -316,12 +316,14 @@ c("pull-push", "git pull & git push", "git pull 与 git push", exam=True,
 - `git pull` = `git fetch` (download remote changes) + `git merge` (integrate them). `git push` uploads your commits.
 - Habit: **pull before push**. If the remote has commits you don't have, `push` is **rejected** → `git pull` (merge, maybe resolve conflicts) → `git push`.
 - Set once: `git config --global pull.rebase false` (merge on pull) — or `true` ([[pull-rebase]]).
+- `git status` says "Your branch and 'origin/main' have **diverged**, and have 7 and 42 different commits each" → you have 7 local commits the remote lacks, the remote has 42 you lack → pull (merge or rebase), then push.
 """,
   zh=r"""
 - 提交只改变你的**本地**仓库。
 - `git pull` = `git fetch`（下载远程改动）+ `git merge`（合并进来）。`git push` 上传你的提交。
 - 习惯：**先 pull 再 push**。远程有你没有的提交时，`push` 会被**拒绝** → `git pull`（合并，可能要解决冲突）→ `git push`。
 - 设置一次：`git config --global pull.rebase false`（pull 时合并）——或 `true`（[[pull-rebase]]）。
+- `git status` 显示 “Your branch and 'origin/main' have **diverged**, and have 7 and 42 different commits each” → 你本地有 7 个远程没有的提交，远程有 42 个你没有的 → 先 pull（merge 或 rebase）再 push。
 """,
   see=["remote", "merge", "shared-access", "merge-conflict"])
 
@@ -387,6 +389,33 @@ c("merge-conflict", "Merge conflicts", "合并冲突", exam=True,
 >>>>>>> comments
 """,
   see=["merge", "pull-push", "rebase", "git-status"])
+
+c("merge-options", "Reading: git merge options", "指定阅读：git merge 的选项",
+  en=r"""
+From `man git-merge` (pre-reading):
+| Option / idea | Meaning |
+|---|---|
+| fast-forward | current branch is an ancestor of the other → just move the pointer, no merge commit |
+| `--no-ff` | always create a merge commit (keeps a record that a feature branch existed) |
+| `--ff-only` | refuse unless a fast-forward is possible |
+| `--abort` | give up a conflicted merge, return to the pre-merge state |
+| merge base | the common ancestor; Git compares both sides against it (three-way merge) |
+| `git checkout --ours F` / `--theirs F` | during a conflict, take one side's whole version of F |
+- During a rebase "ours" and "theirs" are swapped (you are replaying *your* commits onto *theirs*).
+""",
+  zh=r"""
+来自 `man git-merge`（课前阅读）：
+| 选项 / 概念 | 含义 |
+|---|---|
+| 快进 fast-forward | 当前分支是另一分支的祖先 → 只移动指针，不产生合并提交 |
+| `--no-ff` | 总是创建合并提交（保留“曾有功能分支”的记录） |
+| `--ff-only` | 不能快进就拒绝合并 |
+| `--abort` | 放弃有冲突的合并，回到合并前状态 |
+| 合并基点 merge base | 共同祖先；Git 拿两边分别与它比较（三方合并） |
+| `git checkout --ours F` / `--theirs F` | 冲突时整份采用某一边的 F |
+- rebase 时 “ours” 和 “theirs” 的含义是反过来的（你是把*自己的*提交重放到*对方的*之上）。
+""",
+  see=["merge", "merge-conflict", "rebase"])
 
 S("shared", "Collaborating with shared access", "有共享权限的协作")
 c("shared-access", "Shared-access workflow", "共享权限工作流", exam=True,
@@ -586,5 +615,12 @@ for n, e, z, k in [
     ("git config pull.rebase true", "rebase on pull", "pull 时 rebase", "pull-rebase"),
     ("git push --force-with-lease", "overwrite remote branch (careful)", "覆盖远程分支（小心）", "force-push"),
     ("git reflog; cherry-pick; cat-file -p; gc", "recover lost commits", "找回丢失提交", "reflog"),
+]:
+    cmd(n, e, z, k)
+
+W(5)
+for n, e, z, k in [
+    ("git merge --no-ff / --ff-only / --abort", "merge options", "合并选项", "merge-options"),
+    ("git checkout --ours F / --theirs F", "take one side of a conflict", "冲突时取某一方版本", "merge-options"),
 ]:
     cmd(n, e, z, k)

@@ -20,6 +20,8 @@ import c_dev                          # noqa: E402,F401  W6-W7
 import c_db                           # noqa: E402,F401  W8-W10
 from c_weeks import MODULES, THREADS  # noqa: E402
 from c_logic import QUESTION, SECTION  # noqa: E402
+from c_labs import LABS, LAB_CONCEPTS  # noqa: E402
+from c_quiz import QUIZ  # noqa: E402
 import json  # noqa: E402
 
 UPSTREAM = "https://github.com/cs-uob/software-tools/tree/main/"
@@ -54,6 +56,7 @@ def inline(s, lang):
 
     s = re.sub(r"`([^`]+)`", keep, s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
+    s = re.sub(r"(?<![A-Za-z0-9_*])\*(?=\S)([^*\n]+?)(?<=\S)\*(?![A-Za-z0-9_*])", r"<em>\1</em>", s)
 
     def link(m):
         cid, label = m.group(1), m.group(2)
@@ -140,7 +143,7 @@ HEAD_JS = ("(function(){var m='both';try{var p=new URLSearchParams(location.sear
            "if(!/^(en|zh|both)$/.test(m))m='both';document.documentElement.className='mode-'+m})()")
 
 
-def sidebar(active=None):
+def sidebar(active=None, lab_active=None):
     parts = []
     for mod in MODULES:
         weeks = [w for w in sorted(M.WEEKS) if M.WEEKS[w]["module"] == mod["id"]]
@@ -152,15 +155,22 @@ def sidebar(active=None):
                       f'{bi(w["en"], w["zh"])}</a></li>')
         parts.append(f'<div class="navmod m-{mod["id"]}"><div class="navmod-t">'
                      f'{bi(mod["en"], mod["zh"])}</div><ul>{"".join(li)}</ul></div>')
+    li = []
+    for n in sorted(LABS):
+        cur = ' aria-current="page"' if lab_active == n else ""
+        li.append(f'<li><a href="l{n:02d}.html"{cur}><span class="wn">L{n}</span>{bi(LABS[n]["en"].split(":")[0], LABS[n]["zh"].split("：")[-1])}</a></li>')
+    parts.append(f'<div class="navmod m-lab"><div class="navmod-t">{bi("Labs", "实验")}</div><ul>{"".join(li)}</ul></div>')
     return f'<nav class="sidebar" aria-label="weeks">{"".join(parts)}</nav>'
 
 
-def page(title, body, active=None, wide=False, side=True):
+def page(title, body, active=None, wide=False, side=True, lab_active=None):
     top = f'''<header class="topbar">
   <a class="brand" href="index.html"><span class="logo">$_</span>{bi("Software Tools · Revision", "Software Tools 复习笔记")}</a>
   <nav class="topnav">
     <a href="index.html">{bi("Home", "首页", "ui")}</a>
     <a href="mindmap.html">{bi("Mind map", "思维导图", "ui")}</a>
+    <a href="labs.html">{bi("Labs", "实验", "ui")}</a>
+    <a href="quiz.html">{bi("Quiz", "自测", "ui")}</a>
     <a href="glossary.html">{bi("Glossary", "术语表", "ui")}</a>
     <a href="commands.html">{bi("Commands", "命令速查", "ui")}</a>
     <a href="all.html">{bi("All-in-one", "全文", "ui")}</a>
@@ -170,7 +180,7 @@ def page(title, body, active=None, wide=False, side=True):
     <button data-mode="zh" type="button">中文</button><button data-mode="both" type="button">对照</button><button data-mode="en" type="button">EN</button>
   </div>
 </header>'''
-    layout = (f'<div class="layout">{sidebar(active)}<main class="main{" wide" if wide else ""}">{body}</main></div>'
+    layout = (f'<div class="layout">{sidebar(active, lab_active)}<main class="main{" wide" if wide else ""}">{body}</main></div>'
               if side else f'<main class="main solo">{body}</main>')
     foot = ('<footer class="foot">' + bi(
         "© 2026 Xuanyu Meng · Personal revision notes for COMS10012 / COMSM0085 Software Tools, weeks 0–10. "
@@ -231,6 +241,7 @@ def concept_html(d, en, zh, code, here_week):
         rel += f'<div class="rel-row"><span class="rel-k">{bi("Referenced by", "被引用")}</span>{"".join(chip(s, here_week) for s in back)}</div>'
     rel = f'<footer class="rel">{rel}</footer>' if rel else ""
     ex = f'<span class="badge exam">{bi("exam focus", "重点")}</span>' if d["exam"] else ""
+    ex += lab_badge(d)
     return f'''<article class="concept" id="c-{d["id"]}">
 <h3><a class="anchor" href="#c-{d["id"]}" aria-label="link">#</a><span class="term-en">{esc(d["t_en"])}</span><span class="term-zh l-zh">{esc(d["t_zh"])}</span>{ex}</h3>
 <div class="bi-body"><div class="l-en" lang="en">{en}</div><div class="l-zh" lang="zh-CN">{zh}</div></div>
@@ -258,6 +269,8 @@ def week_tree(n, as_root=False):
         kids = [node(d["t_en"], d["t_zh"], "concept", w["module"], href(d["id"])) for d in s["concepts"]]
         secs.append(node(f'{n}.{i} {s["en"]}', f'{n}.{i} {s["zh"]}', "section", w["module"],
                          f'{w["slug"]}.html#s-{n}-{s["id"]}', kids))
+    if n in LABS:
+        secs.append(lab_tree(n))
     return node(f'W{n} {w["en"]}', f'W{n} {w["zh"]}', "root" if as_root else "week", w["module"],
                 f'{w["slug"]}.html', secs)
 
@@ -291,6 +304,9 @@ def week_main(n, rendered, level="h1"):
         flow += f'<div><span class="rel-k">{bi("Builds on", "前置")}</span>{builds}</div>'
     if leads:
         flow += f'<div><span class="rel-k">{bi("Leads to", "后续")}</span>{leads}</div>'
+    if n in LABS:
+        flow += (f'<div><span class="rel-k">{bi("Lab", "实验")}</span><a class="wk-link lab-link m-{w["module"]}" href="{lab_href(n)}">'
+                 f'🧪 {bi(esc(LABS[n]["en"]), esc(LABS[n]["zh"]))}</a></div>')
     flow += "</div>"
     src = (f'<a class="src" href="{UPSTREAM}{w["folder"]}" rel="noopener">{bi("Original materials on GitHub ↗", "课程原始资料 ↗")}</a>'
            if w["folder"] else "")
@@ -381,6 +397,8 @@ def index_page():
              f'<div><b>{sum(len(w["sections"]) for w in M.WEEKS.values())}</b>{bi("sections", "小节")}</div>'
              f'<div><b>{len(M.CONCEPTS)}</b>{bi("concepts", "知识点")}</div>'
              f'<div><b>{len(M.CMDS)}</b>{bi("commands", "命令")}</div>'
+             f'<div><b>{len(LABS)}</b>{bi("labs", "个实验")}</div>'
+             f'<div><b>{len(QUIZ)}</b>{bi("practice Qs", "道自测题")}</div>'
              f'<div><b>{n_links}</b>{bi("cross-links", "概念互链")}</div></div>')
     # route: modules in order, each week = its core question
     rows = []
@@ -412,7 +430,7 @@ def index_page():
 <h1>{bi("Software Tools", "Software Tools")}<span class="h1-sub">{bi("structured revision notes", "系统化复习笔记")}</span></h1>
 <p class="lede">{bi("Four modules, eleven lectures, one question per lecture. Start from the mind map, follow the route, then use the threads to connect ideas across weeks.",
                      "四个模块、十一讲、每讲一个核心问题。先看思维导图建立全局，再按学习路线逐讲复习，最后用知识主线把不同讲的概念串起来。")}</p>
-<div class="hero-cta"><a class="btn primary" href="mindmap.html">{bi("Open the mind map", "打开思维导图")} →</a><a class="btn" href="w01.html">{bi("Start at Week 1", "从第 1 讲开始")}</a><a class="btn" href="print.html">{bi("Revision print pack", "复习资料打印包")}</a></div>
+<div class="hero-cta"><a class="btn primary" href="mindmap.html">{bi("Open the mind map", "打开思维导图")} →</a><a class="btn" href="w01.html">{bi("Start at Week 1", "从第 1 讲开始")}</a><a class="btn" href="quiz.html">{bi("Practice questions", "自测题库")}</a><a class="btn" href="print.html">{bi("Revision print pack", "复习资料打印包")}</a></div>
 </div>
 {stats}
 </section>
@@ -420,8 +438,14 @@ def index_page():
 <span class="hint">{bi("click to unfold weeks → sections → notes · drag to move", "点击展开 讲 → 小节 → 知识点 · 拖动平移")}</span><a class="more" href="mindmap.html">{bi("Full screen", "全屏查看")} →</a></div>
 {mindmap("mm-home", course_tree(), 2, True, "mm-home")}</section>
 <section class="route"><div class="sec-title"><span class="sec-num">02</span><h2>{bi("Learning route", "学习路线")}</h2><span class="hint">{bi("each lecture answers one question", "每一讲回答一个问题")}</span></div>{"".join(rows)}</section>
-<section class="threads"><div class="sec-title"><span class="sec-num">03</span><h2>{bi("Threads across the unit", "贯穿全课的知识主线")}</h2><span class="hint">{bi("the same idea, met again in later weeks", "同一个思想，在后面的讲里再次出现")}</span></div>{"".join(threads)}</section>
-<section class="about card" id="about"><div class="sec-title"><span class="sec-num">04</span><h2>{bi("About & disclaimer", "关于与声明")}</h2></div>{about_html()}</section>
+<section class="practice"><div class="sec-title"><span class="sec-num">03</span><h2>{bi("Labs and practice", "实验与自测")}</h2><span class="hint">{bi("the exam draws on labs as much as lectures", "考题同样来自实验")}</span></div>
+<div class="pr-cards">
+<a class="pr-card m-unix" href="labs.html"><span class="pr-ic">🧪</span><b>{bi("Labs board", "实验板块")}</b><span>{bi(f"{len(LABS)} labs: goal, steps, exam points, common mistakes and reference solutions — SQL answers run on the real databases.", f"{len(LABS)} 个实验：目标、步骤、考点、易错点和参考答案——SQL 答案在真实数据库上运行验证。")}</span></a>
+<a class="pr-card m-dev" href="quiz.html"><span class="pr-ic">✅</span><b>{bi("Practice questions", "自测题库")}</b><span>{bi(f"{len(QUIZ)} exam-style questions with explanations, a 32-question timed mock exam and a review list of your mistakes.", f"{len(QUIZ)} 道仿真题附解析，32 题限时模拟考试，以及自动收集的错题本。")}</span></a>
+<a class="pr-card m-db" href="print.html"><span class="pr-ic">🖨️</span><b>{bi("Revision print pack", "复习资料打印包")}</b><span>{bi("Checklists, commands, every note, every lab solution and an A–Z index on A4.", "考点速记、命令、全部笔记、全部实验答案和 A–Z 索引，A4 排版。")}</span></a>
+</div></section>
+<section class="threads"><div class="sec-title"><span class="sec-num">04</span><h2>{bi("Threads across the unit", "贯穿全课的知识主线")}</h2><span class="hint">{bi("the same idea, met again in later weeks", "同一个思想，在后面的讲里再次出现")}</span></div>{"".join(threads)}</section>
+<section class="about card" id="about"><div class="sec-title"><span class="sec-num">05</span><h2>{bi("About & disclaimer", "关于与声明")}</h2></div>{about_html()}</section>
 <section class="howto">{bi("Language switch (top right): 中文 / 对照 / EN. English terms always stay visible because the exam is in English. Chips are links; <b>W3</b> marks a concept from another week.",
                        "右上角切换 中文 / 对照 / EN。考试是英文的，所以英文术语始终显示。小标签都是链接，带 <b>W3</b> 的来自其它讲。")}</section>'''
     return page("Software Tools 复习笔记 · Revision", body, side=False)
@@ -471,6 +495,169 @@ def commands_page():
 
 
 # ---------------------------------------------------------------- main
+# ---------------------------------------------------------------- labs & quiz
+def lab_href(n, pid=None):
+    return f"l{n:02d}.html" + (f"#lp-{pid}" if pid else "")
+
+
+def lab_badge(d):
+    if d["id"] in LAB_CONCEPTS and d["week"] in LABS:
+        return (f'<a class="badge lab" href="{lab_href(d["week"])}" title="from Lab {d["week"]}">'
+                f'🧪 {bi("lab", "实验")}</a>')
+    return ""
+
+
+def lab_part_html(n, p):
+    def body(en, zh):
+        if not (en or zh):
+            return ""
+        return (f'<div class="bi-body"><div class="l-en" lang="en">{md(en, "en")}</div>'
+                f'<div class="l-zh" lang="zh-CN">{md(zh, "zh")}</div></div>')
+    code = f'<pre class="code">{esc(textwrap.dedent(p["code"]).strip(chr(10)))}</pre>' if p["code"] else ""
+    sol = ""
+    if p["sol_en"] or p["sol_zh"] or p["sol_code"]:
+        sc = f'<pre class="code">{esc(textwrap.dedent(p["sol_code"]).strip(chr(10)))}</pre>' if p["sol_code"] else ""
+        sol = (f'<details class="sol"><summary>{bi("Show reference solution", "展开参考答案")}'
+               f'<span class="sol-hint">{bi("try it yourself first", "先自己做")}</span></summary>'
+               f'{sc}{body(p["sol_en"], p["sol_zh"])}</details>')
+    for s in p["see"]:
+        if s not in M.BY_ID:
+            ERRORS.append(f"[lab {n}/{p['id']}] unknown concept {s}")
+    see = "".join(chip(s) for s in p["see"] if s in M.BY_ID)
+    rel = f'<footer class="rel"><div class="rel-row"><span class="rel-k">{bi("Notes", "对应笔记")}</span>{see}</div></footer>' if see else ""
+    return (f'<article class="concept lab-part" id="lp-{p["id"]}"><h3><a class="anchor" href="#lp-{p["id"]}">#</a>'
+            f'<span class="term-en">{esc(p["t_en"])}</span><span class="term-zh l-zh">{esc(p["t_zh"])}</span></h3>'
+            f'{body(p["en"], p["zh"])}{code}{sol}{rel}</article>')
+
+
+def lab_main(n):
+    L = LABS[n]
+    w = M.WEEKS[n]
+    files = " ".join(f'<a href="{UPSTREAM.replace("/tree/", "/blob/")}{f}" rel="noopener"><code>{esc(f.split("/")[-1])}</code></a>' for f in L["files"])
+    boxes = ""
+    if L["exam_en"] or L["exam_zh"]:
+        boxes += (f'<div class="lab-box exam"><h3>🎯 {bi("What the exam asks", "考点")}</h3><div class="bi-body">'
+                  f'<div class="l-en" lang="en">{md(L["exam_en"], "en")}</div><div class="l-zh" lang="zh-CN">{md(L["exam_zh"], "zh")}</div></div></div>')
+    if L["pit_en"] or L["pit_zh"]:
+        boxes += (f'<div class="lab-box pit"><h3>⚠️ {bi("Common mistakes", "易错点")}</h3><div class="bi-body">'
+                  f'<div class="l-en" lang="en">{md(L["pit_en"], "en")}</div><div class="l-zh" lang="zh-CN">{md(L["pit_zh"], "zh")}</div></div></div>')
+    steps = "".join(f'<li><a href="#lp-{p["id"]}">{bi(esc(p["t_en"]), esc(p["t_zh"]))}</a></li>' for p in L["parts"])
+    parts = "".join(lab_part_html(n, p) for p in L["parts"])
+    return f'''<div class="wk lab-page m-{w["module"]}" id="lab-{n}">
+<header class="wk-head"><div class="wk-badge">L{n}</div>
+<div class="kicker">Lab {n:02d} · {bi(w["en"], w["zh"])}</div>
+<h1>{bi(esc(L["en"]), esc(L["zh"]))}</h1>
+<div class="cq"><div class="cq-k">{bi("Goal", "实验目标")}</div><div class="cq-q">{bi(esc(L["goal_en"]), esc(L["goal_zh"]))}</div></div>
+<div class="flow"><div><span class="rel-k">{bi("Lecture notes", "对应讲义")}</span><a class="wk-link m-{w["module"]}" href="{w["slug"]}.html"><b>W{n}</b> {bi(w["en"], w["zh"])}</a></div>
+<div><span class="rel-k">{bi("Lab sheets", "实验原文")}</span>{files}</div></div>
+</header>
+<section class="lab-boxes">{boxes}</section>
+<section class="structure"><div class="card st-chain"><h2>{bi("Lab steps", "实验步骤")}</h2><ol class="lab-steps">{steps}</ol></div></section>
+{parts}
+</div>'''
+
+
+def lab_pager(n):
+    ks = sorted(LABS)
+    i = ks.index(n)
+    out = '<nav class="pn">'
+    out += (f'<a href="{lab_href(ks[i-1])}">← L{ks[i-1]} {bi(esc(LABS[ks[i-1]]["en"]), esc(LABS[ks[i-1]]["zh"]))}</a>' if i > 0 else "<span></span>")
+    out += (f'<a href="{lab_href(ks[i+1])}">L{ks[i+1]} {bi(esc(LABS[ks[i+1]]["en"]), esc(LABS[ks[i+1]]["zh"]))} →</a>' if i < len(ks) - 1 else "")
+    return out + "</nav>"
+
+
+def labs_index_page():
+    cards = []
+    for n in sorted(LABS):
+        L, w = LABS[n], M.WEEKS[n]
+        nsol = sum(1 for p in L["parts"] if p["sol_en"] or p["sol_zh"] or p["sol_code"])
+        items = "".join(f'<li>{bi(esc(p["t_en"]), esc(p["t_zh"]))}</li>' for p in L["parts"])
+        cards.append(f'<a class="rcard m-{w["module"]}" href="{lab_href(n)}"><span class="rc-w">L{n}</span>'
+                     f'<span class="rc-t">{bi(esc(L["en"]), esc(L["zh"]))}</span>'
+                     f'<span class="rc-q">{bi(esc(L["goal_en"]), esc(L["goal_zh"]))}</span>'
+                     f'<ol class="rc-s">{items}</ol><span class="rc-meta">{len(L["parts"])} {bi("parts", "个步骤")} · {nsol} {bi("solutions", "份参考答案")}</span></a>')
+    body = (f'<div class="mm-page-h"><h1>{bi("Labs: key points and solutions", "实验板块：重点与参考答案")}</h1>'
+            f'<p class="lede">{bi("Every weekly lab summarised: goal, steps, what the exam asks, common mistakes, and reference solutions (collapsed — try first). SQL answers were run against the lab databases; Datalog rules were checked with an evaluator.", "每周实验的总结：目标、步骤、考点、易错点和参考答案（默认折叠——先自己做）。SQL 答案在实验数据库上运行过；Datalog 规则用求值器验证过。")}</p></div>'
+            f'<div class="rr-cards labs-grid">{"".join(cards)}</div>')
+    return page("Labs 实验板块 — Software Tools", body, side=False)
+
+
+def quiz_page():
+    data = []
+    for i, x in enumerate(QUIZ):
+        if x["cid"] not in M.BY_ID:
+            ERRORS.append(f"[quiz {i}] unknown concept {x['cid']}")
+            continue
+        opts = []
+        for o in x["options"]:
+            if isinstance(o, str):
+                opts.append(f"<code>{esc(o)}</code>")
+            else:
+                opts.append(bi(inline(o[0], "en"), inline(o[1], "zh")))
+        d = M.BY_ID[x["cid"]]
+        data.append(dict(id=i, w=x["week"], m=M.WEEKS[x["week"]]["module"],
+                         q=bi(inline(x["en"], "en"), inline(x["zh"], "zh")),
+                         o=opts, a=x["ans"], e=bi(inline(x["exp_en"], "en"), inline(x["exp_zh"], "zh")),
+                         h=href(x["cid"]), t=f'{d["t_en"]} · {d["t_zh"]}'))
+    js = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    weeks = sorted({x["w"] for x in data})
+    chips = "".join(f'<button type="button" data-w="{n}" class="m-{M.WEEKS[n]["module"]}">W{n}</button>' for n in weeks)
+    body = f'''<div class="mm-page-h"><h1>{bi("Practice questions", "自测题库")}</h1>
+<p class="lede">{bi(f"{len(data)} original four-option questions in the style of the TB1 paper, each with an explanation and a link to the note. Wrong answers are saved to your review list in this browser.", f"共 {len(data)} 道原创四选一题，仿照 TB1 考卷风格，每题附解析和对应笔记链接。答错的题会保存到本浏览器的错题本。")}</p></div>
+<div class="qz" id="qz">
+<div class="qz-tabs" role="tablist">
+<button type="button" data-tab="practice" aria-selected="true">{bi("Practise by lecture", "按讲练习")}</button>
+<button type="button" data-tab="mock">{bi("Mock exam · 32 Qs · 60 min", "模拟考试 · 32 题 · 60 分钟")}</button>
+<button type="button" data-tab="wrong">{bi("Review list", "错题本")} <span class="qz-count" id="qz-wn">0</span></button>
+</div>
+<div class="qz-panel" data-panel="practice">
+<div class="qz-filter"><button type="button" data-w="all" aria-pressed="true">{bi("All", "全部")}</button>{chips}<span class="qz-score" id="qz-score"></span></div>
+<div id="qz-practice"></div></div>
+<div class="qz-panel" data-panel="mock" hidden>
+<div class="qz-mock-start" id="qz-mock-start"><p>{bi("32 questions drawn across all lectures, no feedback until you submit. Option E (no answer) mirrors the real paper. The timer is only a guide.", "从各讲抽取 32 题，交卷前不显示对错。E 选项（不作答）与真实考卷一致。计时仅供参考。")}</p>
+<button type="button" class="btn primary" id="qz-start">{bi("Start mock exam", "开始模拟考试")}</button></div>
+<div id="qz-mock" hidden><div class="qz-bar"><span id="qz-timer">60:00</span><span id="qz-prog"></span><button type="button" class="btn" id="qz-submit">{bi("Submit", "交卷")}</button></div><div id="qz-mock-list"></div></div>
+<div id="qz-result" hidden></div></div>
+<div class="qz-panel" data-panel="wrong" hidden><div id="qz-wrong"></div></div>
+</div>
+<script type="application/json" id="qz-data">{js}</script>
+<script type="application/json" id="qz-ui">{json.dumps(dict(check=bi("Note", "查看笔记"), correct=bi("Correct", "正确"), wrong=bi("Not quite", "错误"), none=bi("No wrong answers saved yet.", "还没有错题。"), e=bi("E. I do not want any marks for this question", "E. 本题不作答"), score=bi("Score", "得分"), skipped=bi("skipped", "未作答"), retry=bi("Retry", "再做一遍"), clear=bi("Clear list", "清空错题本")), ensure_ascii=False)}</script>
+<script src="assets/quiz.js"></script>'''
+    return page("Practice questions 自测题库 — Software Tools", body, side=False)
+
+
+def lab_tree(n):
+    L = LABS[n]
+    kids = [node(p["t_en"], p["t_zh"], "concept", M.WEEKS[n]["module"], lab_href(n, p["id"])) for p in L["parts"]]
+    return node(f"🧪 Lab {n}", f"🧪 实验 {n}", "section", M.WEEKS[n]["module"], lab_href(n), kids)
+
+
+def print_labs(rendered):
+    out = []
+    for n in sorted(LABS):
+        L, w = LABS[n], M.WEEKS[n]
+        parts = [f'<div class="pp-week m-{w["module"]}" id="pl-{n}"><div class="pp-wh"><span class="pp-wn">L{n}</span>'
+                 f'<div><h2>{bi(esc(L["en"]), esc(L["zh"]))}</h2><p class="pp-q"><b>⟶</b> {bi(esc(L["goal_en"]), esc(L["goal_zh"]))}</p></div></div>']
+        for key, t_en, t_zh in (("exam", "What the exam asks", "考点"), ("pit", "Common mistakes", "易错点")):
+            en, zh = L[key + "_en"], L[key + "_zh"]
+            if en or zh:
+                parts.append(f'<div class="pp-c"><div class="pp-ct"><b>{bi(t_en, t_zh)}</b></div><div class="pp-cb">'
+                             f'<div class="l-en" lang="en">{md(en, "en")}</div><div class="l-zh" lang="zh-CN">{md(zh, "zh")}</div></div></div>')
+        for i, p in enumerate(L["parts"], 1):
+            body = ""
+            for a, b in ((p["en"], p["zh"]), (p["sol_en"], p["sol_zh"])):
+                if a or b:
+                    body += f'<div class="pp-cb"><div class="l-en" lang="en">{md(a, "en")}</div><div class="l-zh" lang="zh-CN">{md(b, "zh")}</div></div>'
+            for c in (p["code"], p["sol_code"]):
+                if c:
+                    body += f'<pre class="code">{esc(textwrap.dedent(c).strip(chr(10)))}</pre>'
+            parts.append(f'<div class="pp-c"><div class="pp-ct"><span class="pp-code">L{n}.{i}</span><b>{esc(p["t_en"])}</b>'
+                         f'<span class="pp-tz l-zh">{esc(p["t_zh"])}</span></div>{body}</div>')
+        parts.append("</div>")
+        out.append("".join(parts))
+    return "".join(out)
+
+
 CODE = {}
 
 
@@ -490,14 +677,15 @@ def print_page(rendered):
     cover = f'''<section class="pp-cover">
 <div class="kicker">COMS10012 / COMSM0085 · TB1 · Weeks 0–10</div>
 <h1>{bi("Software Tools — revision print pack", "Software Tools 复习资料打印包")}</h1>
-<p class="pp-lede">{bi(f"{len(M.CONCEPTS)} notes, {len(M.CMDS)} commands, every lecture's checklist, and an A–Z index. Every note has a code <b>week.section.item</b> (e.g. <b>2.3.4</b>); arrows like <b>[2.3.4]</b> inside a note point to the related note.",
-                       f"共 {len(M.CONCEPTS)} 个知识点、{len(M.CMDS)} 条命令、每讲考点速记，以及 A–Z 术语索引。每个知识点都有编号 <b>讲.小节.条目</b>（如 <b>2.3.4</b>）；笔记中的 <b>[2.3.4]</b> 表示相关知识点的位置。")}</p>
+<p class="pp-lede">{bi(f"{len(M.CONCEPTS)} notes, {len(M.CMDS)} commands, every lecture's checklist, all labs with solutions, and an A–Z index. Every note has a code <b>week.section.item</b> (e.g. <b>2.3.4</b>); arrows like <b>[2.3.4]</b> inside a note point to the related note.",
+                       f"共 {len(M.CONCEPTS)} 个知识点、{len(M.CMDS)} 条命令、每讲考点速记、全部实验与参考答案，以及 A–Z 术语索引。每个知识点都有编号 <b>讲.小节.条目</b>（如 <b>2.3.4</b>）；笔记中的 <b>[2.3.4]</b> 表示相关知识点的位置。")}</p>
 <div class="pp-howto"><b>{bi("How to look things up", "查找方法")}</b><ol>
-<li>{bi("Know the term? Part D index → code → find it in Part C.", "知道英文术语 → 查 D 部分索引 → 按编号在 C 部分找到笔记。")}</li>
+<li>{bi("Know the term? Part E index → code → find it in Part C.", "知道英文术语 → 查 E 部分索引 → 按编号在 C 部分找到笔记。")}</li>
 <li>{bi("Question names a command? Part B.", "题目里出现命令/选项 → 查 B 部分命令速查。")}</li>
 <li>{bi("Need the big picture of a topic? Part A (one block per lecture).", "需要快速回忆某讲要点 → 查 A 部分考点速记。")}</li>
+<li>{bi("Question shows a lab task (SQL query, grep, git workflow)? Part D.", "题目像实验任务（SQL 查询、grep、git 流程）→ 查 D 部分实验答案。")}</li>
 </ol></div>
-<div class="pp-parts"><div><b>A</b>{bi("Exam checklists", "考点速记")}</div><div><b>B</b>{bi("Command cheatsheet", "命令速查")}</div><div><b>C</b>{bi("All notes by lecture", "全部知识点（按讲）")}</div><div><b>D</b>{bi("A–Z term index", "A–Z 术语索引")}</div></div>
+<div class="pp-parts"><div><b>A</b>{bi("Exam checklists", "考点速记")}</div><div><b>B</b>{bi("Command cheatsheet", "命令速查")}</div><div><b>C</b>{bi("All notes by lecture", "全部知识点（按讲）")}</div><div><b>D</b>{bi("Labs & solutions", "实验与答案")}</div><div><b>E</b>{bi("A–Z term index", "A–Z 术语索引")}</div></div>
 <p class="pp-author">{bi("Compiled by Xuanyu Meng · github.com/bigorangemeng-cyber/software-tools-revision", "整理：Xuanyu Meng · github.com/bigorangemeng-cyber/software-tools-revision")}</p>
 <h3>{bi("Lectures", "目录")}</h3><ol class="pp-toc">{toc}</ol>
 <div class="pp-disc">{bi("Personal revision notes, not official course material; not affiliated with or endorsed by the University of Bristol. Copyright in the original course materials belongs to their authors (github.com/cs-uob/software-tools); this pack contains the author's own summaries with short quoted examples. Non-commercial study use only.",
@@ -544,15 +732,17 @@ def print_page(rendered):
         parts.append("</div>")
         wk_html.append("".join(parts))
     part_c = f'<section class="pp-part" id="pc"><h2 class="pp-h"><span>C</span>{bi("All notes by lecture", "全部知识点（按讲）")}</h2>{"".join(wk_html)}</section>'
+    # ---- E: labs
+    part_e = f'<section class="pp-part" id="pe"><h2 class="pp-h"><span>D</span>{bi("Labs: key points and solutions", "实验重点与参考答案")}</h2>{print_labs(rendered)}</section>'
     # ---- D: index
     items = "".join(
         f'<li><span class="ix-t"><a href="#p-{d["id"]}"><b>{esc(d["t_en"])}</b></a> <span class="l-zh">{esc(d["t_zh"])}</span></span><span class="pp-ref">{CODE[d["id"]]}</span></li>'
         for d in sorted(M.CONCEPTS, key=lambda x: x["t_en"].lower().lstrip("$.-`/~<")))
-    part_d = f'<section class="pp-part" id="pd"><h2 class="pp-h"><span>D</span>{bi("A–Z term index", "A–Z 术语索引")}</h2><ul class="pp-index">{items}</ul></section>'
+    part_d = f'<section class="pp-part" id="pd"><h2 class="pp-h"><span>E</span>{bi("A–Z term index", "A–Z 术语索引")}</h2><ul class="pp-index">{items}</ul></section>'
     bar = (f'<div class="pp-bar"><button type="button" onclick="window.print()">{bi("Print / Save as PDF", "打印 / 另存为 PDF")}</button>'
            f'<a class="pp-dl" href="exam-pack-bilingual.pdf" download>{bi("Ready-made PDF (bilingual)", "下载现成 PDF（中英对照）")}</a>'
            f'<span>{bi("Tip: A4, scale 100%, tick “Background graphics”. Choose 对照 / 中文 / EN first; English terms are kept in every mode.", "提示：A4 纸、缩放 100%、勾选“背景图形”。先在右上角选 对照 / 中文 / EN；任何模式下英文术语都会保留。")}</span></div>')
-    body = f'<div class="pp">{bar}{cover}{part_a}{part_b}{part_c}{part_d}</div>'
+    body = f'<div class="pp">{bar}{cover}{part_a}{part_b}{part_c}{part_e}{part_d}</div>'
     body = re.sub(r'href="w\d\d\.html#c-([\w-]+)"', r'href="#p-\1"', body)
     return page("Revision print pack 复习资料打印包 — Software Tools", body, side=False)
 
@@ -577,6 +767,11 @@ def main():
     pages["index.html"] = index_page()
     pages["mindmap.html"] = mindmap_page()
     pages["print.html"] = print_page(rendered)
+    for n in sorted(LABS):
+        pages[lab_href(n)] = page(f'Lab {n} {LABS[n]["en"]} · {LABS[n]["zh"]} — Software Tools',
+                                  lab_main(n) + lab_pager(n), lab_active=n)
+    pages["labs.html"] = labs_index_page()
+    pages["quiz.html"] = quiz_page()
     if ERRORS:
         print("\n".join(ERRORS))
         sys.exit(1)
